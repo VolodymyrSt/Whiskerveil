@@ -1,6 +1,6 @@
 using System;
 using _Project.Code.Runtime.Character.View;
-using _Project.Code.Runtime.CommonServices.RolePickerService;
+using _Project.Code.Runtime.CommonServices.RolePicker;
 
 namespace _Project.Code.Runtime.Character
 {

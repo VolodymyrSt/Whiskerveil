@@ -16,7 +16,7 @@ namespace _Project.Code.Runtime.Infrustructure.EntryPoints
 
         private void Awake()
         {
-            var gameBootstrapper = FindObjectOfType<GameBootstrapper>();
+            var gameBootstrapper = FindAnyObjectByType<GameBootstrapper>();
             
             if (gameBootstrapper != null) return;
 

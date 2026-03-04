@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using _Project.Code.Runtime.Character.Factory;
 using _Project.Code.Runtime.Character.View;
-using _Project.Code.Runtime.CommonServices.LobbySlotServices;
-using _Project.Code.Runtime.CommonServices.RolePickerService;
+using _Project.Code.Runtime.CommonServices.LobbySlots;
+using _Project.Code.Runtime.CommonServices.RolePicker;
 using Unity.Netcode;
 using UnityEngine;
 using Zenject;
@@ -18,6 +18,7 @@ namespace _Project.Code.Runtime.Character
         private ICharacterView _view;
         
         public Transform Transform => transform;
+        public GameRole Role => _role.Value;
 
         public override void OnNetworkSpawn()
         {

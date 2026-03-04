@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using _Project.Code.Runtime.CommonServices.LobbySlotServices;
+using _Project.Code.Runtime.CommonServices.LobbySlots;
 using UnityEngine;
 using Zenject;
 
@@ -9,9 +9,9 @@ namespace _Project.Code.Runtime.Infrustructure.Installers
     {
         [SerializeField] private List<PlayerPlacementSlot> _playerPlacementSlots = new();
 
-        public override void InstallBindings()
-        {
-            Container.BindInterfacesTo<LobbySlotService>().AsSingle().WithArguments(_playerPlacementSlots);
-        }
+        // public override void InstallBindings()
+        // {
+        //     Container.BindInterfacesTo<LobbySlotService>().AsSingle().WithArguments(_playerPlacementSlots);
+        // }
     }
 }

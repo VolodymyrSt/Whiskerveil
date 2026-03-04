@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using _Project.Code.Runtime.Character.View;
-using _Project.Code.Runtime.CommonServices.RolePickerService;
+using _Project.Code.Runtime.CommonServices.RolePicker;
 using _Project.Code.Runtime.Infrustructure.AssetsManagement;
 using Unity.Netcode;
 using UnityEngine;

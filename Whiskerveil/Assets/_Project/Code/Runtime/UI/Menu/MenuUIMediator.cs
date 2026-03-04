@@ -1,4 +1,4 @@
-using _Project.Code.Runtime.CommonServices.NetworkServices;
+using _Project.Code.Runtime.CommonServices.Network;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;

@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a59ec8e40b2046da946780d199108250, type: 3}
+  m_Name: LobbySlotsHolder
+  m_EditorClassIdentifier: Assembly-CSharp::_Project.Code.Runtime.Configs.Lobby.LobbySlotsHolder
+  Slots:
+  - Name: Point_1_Hider
+    Id: 5bc6966e-5109-4d3b-9924-9d6b9e3f5072
+    ForRole: 1
+    Position: {x: -6, y: 0, z: 4.9}
+    Rotation: {x: 0, y: -0.93364304, z: -0, w: 0.35820493}
+  - Name: Point_2_Hider
+    Id: 54dcae3c-1c0e-44dd-8d9c-8764afd9d8f1
+    ForRole: 1
+    Position: {x: -5.978, y: 0, z: 3.147}
+    Rotation: {x: 0, y: -0.841039, z: -0, w: 0.54097456}
+  - Name: Point_3_Hider
+    Id: 9639cab0-fd71-423d-b656-737febac4e86
+    ForRole: 1
+    Position: {x: -6.206, y: 0, z: 1.579}
+    Rotation: {x: 0, y: -0.6427876, z: -0, w: 0.7660445}
+  - Name: Point_Seeker
+    Id: 84c11c4a-5fee-4760-9e52-23a06141608f
+    ForRole: 2
+    Position: {x: -6.12, y: 0, z: -0.27}
+    Rotation: {x: 0, y: -0.24792908, z: -0, w: 0.9687782}

@@ -1,50 +1,73 @@
 using _Project.Code.Runtime.Character;
-using _Project.Code.Runtime.CommonServices.LobbySlotServices;
-using _Project.Code.Runtime.CommonServices.NetworkServices;
-using _Project.Code.Runtime.CommonServices.RolePickerService;
+using _Project.Code.Runtime.Character.Factory;
+using _Project.Code.Runtime.CommonServices.HostLobbyState;
+using _Project.Code.Runtime.CommonServices.LobbySlots;
+using _Project.Code.Runtime.CommonServices.Network;
+using _Project.Code.Runtime.CommonServices.RolePicker;
+using _Project.Code.Runtime.CommonServices.SceneLoader;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UI;
 using Zenject;
 
 namespace _Project.Code.Runtime.Infrustructure.EntryPoints
 {
     public class LobbyEntryPoint : NetworkBehaviour
     {
+        [SerializeField] private Canvas _hub;
+        [SerializeField] private Button _readyButton;
+        
         private IHostNetworkService _hostNetworkService;
         private ILobbySlotService _lobbySlotService;
+        private ISceneLoader _sceneLoader;
+        private ICharacterFactory _characterFactory;
+        private IHostLobbyStateService _hostLobbyStateService;
 
         [Inject]
-        public void Construct(IHostNetworkService hostNetworkService, ILobbySlotService lobbySlotService)
+        public void Construct(IHostNetworkService hostNetworkService, ILobbySlotService lobbySlotService
+            , ICharacterFactory characterFactory, IHostLobbyStateService hostLobbyStateService
+            , ISceneLoader sceneLoader)
         {
             _hostNetworkService = hostNetworkService;
             _lobbySlotService = lobbySlotService;
+            _characterFactory = characterFactory;
+            _hostLobbyStateService = hostLobbyStateService;
+            _sceneLoader = sceneLoader;
         }
         
         public override void OnNetworkSpawn()
         {
-            if (!IsServer) return;
-            
-            _hostNetworkService.OnClientJoinedLobby += OnClientJoinedLobby;
-            _hostNetworkService.OnHostJoinedLobby += OnHostJoinedLobby;
-        }
-
-        private void OnHostJoinedLobby(ulong id, ICharacter hostPlayer) => 
-            AssignPlayerToSlot(id, hostPlayer, GameRole.Seeker);
-
-        private void OnClientJoinedLobby(ulong id, ICharacter clientPlayer) => 
-            AssignPlayerToSlot(id, clientPlayer, GameRole.Hider);
-
-        private void AssignPlayerToSlot(ulong playerId, ICharacter player, GameRole role)
-        {
-            if (!_lobbySlotService.TryGetFreeSlotFor(role, out var slot))
+            if (!IsServer)
             {
-                Debug.LogWarning($"No free slot for {role}!");
+                _hub.gameObject.SetActive(false);
                 return;
             }
-
-            player.Transform.SetPositionAndRotation(slot.transform.position, slot.transform.rotation);
-            slot.Occupy(playerId);
+            
+            _readyButton.onClick.AddListener(() => {
+                _sceneLoader.LoadSync("Level");
+            });
+            
+            _hostNetworkService.OnHostJoinedLobby += OnHostJoinedLobby;
+            _hostNetworkService.OnClientJoinedLobby += OnClientJoinedLobby;
         }
+
+        private void OnHostJoinedLobby(ulong hostId)
+        {
+            ICharacter hostPlayerPrefab = CreateHostPlayerPrefab(hostId);
+            _hostLobbyStateService.BindPlayerToSlot(hostId, hostPlayerPrefab);
+        }
+
+        private void OnClientJoinedLobby(ulong clientId)
+        {
+            ICharacter clientPlayerPrefab = CreateClientPlayerPrefab(clientId);
+            _hostLobbyStateService.BindPlayerToSlot(clientId, clientPlayerPrefab);
+        }
+        
+        private ICharacter CreateClientPlayerPrefab(ulong clientId) => 
+            _characterFactory.CreateCharacter(clientId, GameRole.Hider);
+
+        private ICharacter CreateHostPlayerPrefab(ulong hostId) => 
+            _characterFactory.CreateCharacter(hostId, GameRole.Seeker);
 
         public override void OnNetworkDespawn()
         {
@@ -52,6 +75,7 @@ namespace _Project.Code.Runtime.Infrustructure.EntryPoints
             
             _hostNetworkService.OnClientJoinedLobby -= OnClientJoinedLobby;
             _hostNetworkService.OnHostJoinedLobby -= OnHostJoinedLobby;
+            _readyButton.onClick.RemoveAllListeners();
         }
     }
 }

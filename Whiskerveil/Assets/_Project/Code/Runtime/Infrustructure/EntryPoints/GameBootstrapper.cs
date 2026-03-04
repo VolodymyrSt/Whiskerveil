@@ -1,5 +1,5 @@
 using System;
-using _Project.Code.Runtime.CommonServices.SceneLoaderService;
+using _Project.Code.Runtime.CommonServices.SceneLoader;
 using Unity.Netcode;
 using UnityEngine;
 using Zenject;
@@ -22,7 +22,8 @@ namespace _Project.Code.Runtime.Infrustructure.EntryPoints
 
         private void RunGame()
         {
-            _loadingCurtain.Procced();
+            // _loadingCurtain.Procced();
+            _loadingCurtain.gameObject.SetActive(false);
             _sceneLoader.Load(SceneList.Menu);
             
             DontDestroyOnLoad(gameObject);

@@ -1,5 +1,5 @@
 using _Project.Code.Runtime.Character.View;
-using _Project.Code.Runtime.CommonServices.RolePickerService;
+using _Project.Code.Runtime.CommonServices.RolePicker;
 using UnityEngine;
 
 namespace _Project.Code.Runtime.Character.Factory
