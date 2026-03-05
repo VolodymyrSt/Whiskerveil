@@ -1,7 +1,7 @@
 using _Project.Code.Runtime.Character.Factory;
-using _Project.Code.Runtime.CommonServices.HostLobbyState;
 using _Project.Code.Runtime.CommonServices.LobbySlots;
 using _Project.Code.Runtime.CommonServices.Network;
+using _Project.Code.Runtime.CommonServices.PlayerRegistry;
 using _Project.Code.Runtime.CommonServices.RolePicker;
 using _Project.Code.Runtime.CommonServices.SceneLoader;
 using _Project.Code.Runtime.Configs.Lobby;
@@ -30,16 +30,14 @@ namespace _Project.Code.Runtime.Infrustructure.Installers
             BindRolePicker();
             
             BindCharacterFactory();
-            BindHostLobbyStateService();
             
             Container.BindInterfacesTo<LobbySlotService>().AsSingle().WithArguments(lobbySlotsDataHolder);
+            
+            Container.BindInterfacesTo<PlayersRegistry>().AsSingle();
         }
 
         private void BindLoadingCurtain() => 
             Container.Bind<LoadingCurtain>().FromComponentInNewPrefab(_loadingCurtain).AsSingle().NonLazy();
-
-        private void BindHostLobbyStateService() => 
-            Container.BindInterfacesTo<HostLobbyStateService>().AsSingle();
 
         private void BindAssetsProvider() => 
             Container.BindInterfacesTo<AssetsProvider>().AsSingle();

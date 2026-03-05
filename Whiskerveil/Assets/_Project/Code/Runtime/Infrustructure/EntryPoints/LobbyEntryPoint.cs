@@ -1,10 +1,12 @@
+using System.Collections.Generic;
 using _Project.Code.Runtime.Character;
 using _Project.Code.Runtime.Character.Factory;
-using _Project.Code.Runtime.CommonServices.HostLobbyState;
 using _Project.Code.Runtime.CommonServices.LobbySlots;
 using _Project.Code.Runtime.CommonServices.Network;
+using _Project.Code.Runtime.CommonServices.PlayerRegistry;
 using _Project.Code.Runtime.CommonServices.RolePicker;
 using _Project.Code.Runtime.CommonServices.SceneLoader;
+using ModestTree;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,22 +19,23 @@ namespace _Project.Code.Runtime.Infrustructure.EntryPoints
         [SerializeField] private Canvas _hub;
         [SerializeField] private Button _readyButton;
         
+        private readonly List<ICharacter> _clientPrefabs = new List<ICharacter>();
+        
         private IHostNetworkService _hostNetworkService;
         private ILobbySlotService _lobbySlotService;
         private ISceneLoader _sceneLoader;
         private ICharacterFactory _characterFactory;
-        private IHostLobbyStateService _hostLobbyStateService;
+        private IPlayersRegistry _playersRegistry;
 
         [Inject]
         public void Construct(IHostNetworkService hostNetworkService, ILobbySlotService lobbySlotService
-            , ICharacterFactory characterFactory, IHostLobbyStateService hostLobbyStateService
-            , ISceneLoader sceneLoader)
+            , ICharacterFactory characterFactory, ISceneLoader sceneLoader, IPlayersRegistry playersRegistry)
         {
             _hostNetworkService = hostNetworkService;
             _lobbySlotService = lobbySlotService;
             _characterFactory = characterFactory;
-            _hostLobbyStateService = hostLobbyStateService;
             _sceneLoader = sceneLoader;
+            _playersRegistry = playersRegistry;
         }
         
         public override void OnNetworkSpawn()
@@ -46,35 +49,51 @@ namespace _Project.Code.Runtime.Infrustructure.EntryPoints
             _readyButton.onClick.AddListener(() => {
                 _sceneLoader.LoadSync("Level");
             });
+
+            if (!_playersRegistry.IsEmpty)
+            {
+                foreach (PlayerProfile profile in _playersRegistry.Profiles)
+                    ConfigurePlayerByProfile(profile);
+            }
             
-            _hostNetworkService.OnHostJoinedLobby += OnHostJoinedLobby;
-            _hostNetworkService.OnClientJoinedLobby += OnClientJoinedLobby;
+            _playersRegistry.OnNewPlayerAdded += ConfigurePlayerByProfile;
+            _hostNetworkService.OnClientDisconnected += OnClientDisconnected;
         }
 
-        private void OnHostJoinedLobby(ulong hostId)
+        private void OnClientDisconnected(ulong clientId)
         {
-            ICharacter hostPlayerPrefab = CreateHostPlayerPrefab(hostId);
-            _hostLobbyStateService.BindPlayerToSlot(hostId, hostPlayerPrefab);
+            var clientPrefab = _clientPrefabs.Find(x => x.Id == clientId);
+            NetworkObject.Destroy(clientPrefab.Transform.gameObject);
         }
 
-        private void OnClientJoinedLobby(ulong clientId)
+        private void ConfigurePlayerByProfile(PlayerProfile profile)
         {
-            ICharacter clientPlayerPrefab = CreateClientPlayerPrefab(clientId);
-            _hostLobbyStateService.BindPlayerToSlot(clientId, clientPlayerPrefab);
+            LobbySlot slot;
+            
+            if (string.IsNullOrEmpty(profile.SlotId))
+            {
+                slot = _lobbySlotService.GetFreeSlotFor(profile.Role);
+                slot.IsTaken = true;
+                profile.SlotId = slot.Id;
+            }
+            else
+                slot = _lobbySlotService.GetSlotById(profile.SlotId);
+            
+            ICharacter player = _characterFactory.CreateCharacter(profile.Id, profile.Role, slot.Position, slot.Rotation);
+            _clientPrefabs.Add(player);
         }
-        
-        private ICharacter CreateClientPlayerPrefab(ulong clientId) => 
-            _characterFactory.CreateCharacter(clientId, GameRole.Hider);
 
-        private ICharacter CreateHostPlayerPrefab(ulong hostId) => 
-            _characterFactory.CreateCharacter(hostId, GameRole.Seeker);
+        private void SwapRoles()
+        {
+            
+        }
 
         public override void OnNetworkDespawn()
         {
             if (!IsServer) return;
             
-            _hostNetworkService.OnClientJoinedLobby -= OnClientJoinedLobby;
-            _hostNetworkService.OnHostJoinedLobby -= OnHostJoinedLobby;
+            _playersRegistry.OnNewPlayerAdded -= ConfigurePlayerByProfile;
+            _hostNetworkService.OnClientDisconnected -= OnClientDisconnected;
             _readyButton.onClick.RemoveAllListeners();
         }
     }

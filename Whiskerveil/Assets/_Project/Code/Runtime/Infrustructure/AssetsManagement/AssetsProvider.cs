@@ -27,6 +27,14 @@ namespace _Project.Code.Runtime.Infrustructure.AssetsManagement
             return instance;
         }   
         
+        public T Instantiate<T>(string path, Vector3 at, Quaternion atRot) where T : Object
+        {
+            var prefab = Load<T>(path);
+            var instance = NetworkObject.Instantiate(prefab, at, atRot);
+            _container.Inject(instance);
+            return instance;
+        } 
+        
         public T Instantiate<T>(string path, Vector3 at, Transform parent) where T : Object
         {
             var prefab = Load<T>(path);

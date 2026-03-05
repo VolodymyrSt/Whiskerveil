@@ -4,8 +4,8 @@ namespace _Project.Code.Runtime.CommonServices.LobbySlots
 {
     public interface ILobbySlotService
     {
-        bool TryGetFreeSlotFor(GameRole role, out LobbySlot slot);
+        LobbySlot GetFreeSlotFor(GameRole role);
         void PrepareSlots();
-        bool TrySlotById(string id, out LobbySlot slot);
+        LobbySlot GetSlotById(string id);
     }
 }

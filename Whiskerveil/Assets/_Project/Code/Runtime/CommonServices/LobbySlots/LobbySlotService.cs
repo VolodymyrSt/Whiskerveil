@@ -24,32 +24,24 @@ namespace _Project.Code.Runtime.CommonServices.LobbySlots
                 _slots.Add(new LobbySlot(slotData.Id, slotData.ForRole, slotData.Position, slotData.Rotation));
         }
         
-        public bool TryGetFreeSlotFor(GameRole role, out LobbySlot slot)
+        public LobbySlot GetFreeSlotFor(GameRole role)
         {
-            slot = null;
             LobbySlot foundSlot = _slots.Find(x => !x.IsTaken && x.ForRole == role);
 
             if (foundSlot != null)
-            {
-                slot = foundSlot;
-                return true;
-            }
+                return foundSlot;
             
-            return false;
+            throw new KeyNotFoundException($"LobbySlot with role {role} not available");
         }
 
-        public bool TrySlotById(string id, out LobbySlot slot)
+        public LobbySlot GetSlotById(string id)
         {
-            slot = null;
             LobbySlot foundSlot = _slots.Find(x => x != null && x.Id == id);
 
             if (foundSlot != null)
-            {
-                slot = foundSlot;
-                return true;
-            }
+                return foundSlot;
             
-            return false;
+            throw new KeyNotFoundException($"LobbySlot with id {id} not found");
         }
     }
 }

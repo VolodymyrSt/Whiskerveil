@@ -10,5 +10,6 @@ namespace _Project.Code.Runtime.Infrustructure.AssetsManagement
         GameObject Instantiate(string path, Vector3 at, Transform parent);
         T Load<T>(string path) where T : Object;
         T Instantiate<T>(string path, Vector3 at) where T : Object;
+        T Instantiate<T>(string path, Vector3 at, Quaternion atRot) where T : Object;
     }
 }

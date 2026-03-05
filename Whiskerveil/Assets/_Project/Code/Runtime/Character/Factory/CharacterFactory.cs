@@ -18,14 +18,15 @@ namespace _Project.Code.Runtime.Character.Factory
         public CharacterFactory(IAssetsProvider assetsProvider) => 
             _assetsProvider = assetsProvider;
 
-        public ICharacter CreateCharacter(ulong clientId, GameRole @as, Vector3 at)
+        public ICharacter CreateCharacter(ulong clientId, GameRole @as, Vector3 at, Quaternion atRot)
         {
             if (!NetworkManager.Singleton.IsServer)
                 throw new Exception("Only server can create characters.");
 
-            var character = _assetsProvider.Instantiate<Character>(AssetsPath.CharacterPath, at);
-            character.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
+            var character = _assetsProvider.Instantiate<Character>(AssetsPath.CharacterPath, at, atRot);
+            character.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
             character.AssignRole(@as);
+            character.SetId(clientId);
             
             return character;
         }

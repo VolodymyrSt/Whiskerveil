@@ -16,9 +16,11 @@ namespace _Project.Code.Runtime.Character
         private readonly NetworkVariable<GameRole> _role = new NetworkVariable<GameRole>();
         
         private ICharacterView _view;
+        private ulong _id;
         
         public Transform Transform => transform;
         public GameRole Role => _role.Value;
+        public ulong Id => _id;
 
         public override void OnNetworkSpawn()
         {
@@ -33,12 +35,9 @@ namespace _Project.Code.Runtime.Character
 
             _role.Value = role;
         }
-
-        public void SetToSlot(PlayerPlacementSlot slot)
-        {
-            transform.SetPositionAndRotation(slot.transform.position, slot.transform.rotation);
-
-        }
+        
+        public void SetId(ulong id) => 
+            _id = id;
         
         private void SwitchViewBaseOnRole(GameRole oldRole, GameRole newRole)
         {

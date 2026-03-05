@@ -6,6 +6,6 @@ namespace _Project.Code.Runtime.Character.Factory
 {
     public interface ICharacterFactory
     {
-        ICharacter CreateCharacter(ulong clientId, GameRole @as , Vector3 at = default);
+        ICharacter CreateCharacter(ulong clientId, GameRole @as , Vector3 at = default, Quaternion atRot = default);
     }
 }

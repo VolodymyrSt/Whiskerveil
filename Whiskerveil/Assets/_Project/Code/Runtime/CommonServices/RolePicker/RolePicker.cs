@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using _Project.Code.Runtime.Character;
 using UnityEngine;
 
@@ -5,6 +6,20 @@ namespace _Project.Code.Runtime.CommonServices.RolePicker
 {
     public class RolePicker : IRolePicker
     {
+        private readonly List<RoleSlot> _roleSlots = new() {
+            new RoleSlot(GameRole.Seeker, false),
+            new RoleSlot(GameRole.Hider, false),
+            new RoleSlot(GameRole.Hider, false),
+            new RoleSlot(GameRole.Hider, false)
+        };
+
+        public GameRole GetNextAvailableRole()
+        {
+            RoleSlot roleSlot = _roleSlots.Find(x => !x.IsTaken);
+            roleSlot.IsTaken = true;
+            return roleSlot.Role;
+        }
+
         public void PickRoleForEachPlayers(ICharacter[] characters)
         {
             if (characters.Length < 2)
@@ -22,6 +37,18 @@ namespace _Project.Code.Runtime.CommonServices.RolePicker
                 else
                     characters[i].AssignRole(GameRole.Hider);
             }
+        }
+    }
+
+    public class RoleSlot
+    {
+        public readonly GameRole Role;
+        public bool IsTaken;
+
+        public RoleSlot(GameRole role, bool isTaken)
+        {
+            Role = role;
+            IsTaken = isTaken;
         }
     }
 
