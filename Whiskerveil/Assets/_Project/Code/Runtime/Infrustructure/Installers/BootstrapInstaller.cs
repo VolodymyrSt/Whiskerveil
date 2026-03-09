@@ -1,9 +1,11 @@
 using _Project.Code.Runtime.Character.Factory;
+using _Project.Code.Runtime.CommonServices.ClientRegistry;
+using _Project.Code.Runtime.CommonServices.GameState;
 using _Project.Code.Runtime.CommonServices.LobbySlots;
 using _Project.Code.Runtime.CommonServices.Network;
-using _Project.Code.Runtime.CommonServices.PlayerRegistry;
 using _Project.Code.Runtime.CommonServices.RolePicker;
 using _Project.Code.Runtime.CommonServices.SceneLoader;
+using _Project.Code.Runtime.CommonServices.SwapRole;
 using _Project.Code.Runtime.Configs.Lobby;
 using _Project.Code.Runtime.Infrustructure.AssetsManagement;
 using _Project.Code.Runtime.Infrustructure.EntryPoints;
@@ -33,7 +35,9 @@ namespace _Project.Code.Runtime.Infrustructure.Installers
             
             Container.BindInterfacesTo<LobbySlotService>().AsSingle().WithArguments(lobbySlotsDataHolder);
             
-            Container.BindInterfacesTo<PlayersRegistry>().AsSingle();
+            Container.BindInterfacesTo<ClientsRegistry>().AsSingle();
+            Container.BindInterfacesTo<SwapRoleService>().AsSingle();
+            Container.BindInterfacesTo<GameStateService>().AsSingle();
         }
 
         private void BindLoadingCurtain() => 

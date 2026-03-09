@@ -1,4 +1,5 @@
 using _Project.Code.Runtime.CommonServices.RolePicker;
+using Unity.Collections;
 
 namespace _Project.Code.Runtime.CommonServices.LobbySlots
 {
@@ -6,6 +7,6 @@ namespace _Project.Code.Runtime.CommonServices.LobbySlots
     {
         LobbySlot GetFreeSlotFor(GameRole role);
         void PrepareSlots();
-        LobbySlot GetSlotById(string id);
+        LobbySlot GetSlotById(FixedString64Bytes id);
     }
 }

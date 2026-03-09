@@ -1,0 +1,87 @@
+using System;
+using System.Collections.Generic;
+using _Project.Code.Runtime.CommonServices.ClientRegistry;
+using _Project.Code.Runtime.Utils;
+
+namespace _Project.Code.Runtime.CommonServices.GameState
+{
+    public enum SceneState {InLobby, InLevel, None}
+
+    public class GameStateService : IGameStateService
+    {
+        public event Action OnAllClientReadyToPlay;
+        public event Action<int> OnLobbyStateChanged;
+        
+        private readonly List<ClientLobbyState> _clientLobbyStates = new();
+        private SceneState _currentSceneState = SceneState.None;
+        
+        public SceneState CurrentSceneState => _currentSceneState;
+
+        public void RemoveClientLobbyState(ulong clientId)
+        {
+            if (!Net.IsServer) return;
+
+            var state = GetClientLobbyStateById(clientId);
+            _clientLobbyStates.Remove(state);
+            
+            OnLobbyStateChanged?.Invoke(_clientLobbyStates.Count);
+        }
+
+        public void AddClientLobbyState(ClientProfile profile)
+        {
+            if (!Net.IsServer) return;
+            
+            _clientLobbyStates.Add(new ClientLobbyState 
+                { ClientId = profile.Id, IsReadyToPlay = false });
+            
+            OnLobbyStateChanged?.Invoke(_clientLobbyStates.Count);
+        }
+        
+        public void ClearClientLobbyStates()
+        {
+            if (!Net.IsServer) return;
+            
+            _clientLobbyStates.Clear();
+            
+            OnLobbyStateChanged?.Invoke(_clientLobbyStates.Count);
+        }
+
+        public void SetSceneState(SceneState sceneState)
+        {
+            if (!Net.IsServer) return;
+            
+            _currentSceneState = sceneState;
+        }
+
+        public void UpdateClientState(ulong clientId, bool isReadyToPlay)
+        {
+            if (!Net.IsServer) return;
+            
+            ClientLobbyState state = GetClientLobbyStateById(clientId);
+            state.IsReadyToPlay = isReadyToPlay;
+            
+            if (IsAllClientsReadyToPlay())
+                OnAllClientReadyToPlay?.Invoke();
+        }
+
+        private bool IsAllClientsReadyToPlay()
+        {
+            foreach (var clientLobbyState in _clientLobbyStates)
+                if (!clientLobbyState.IsReadyToPlay)
+                    return false;
+            
+            return true;
+        }
+
+        private ClientLobbyState GetClientLobbyStateById(ulong clientId)
+        {
+            ClientLobbyState state = _clientLobbyStates.Find(x => x.ClientId == clientId);
+
+            if (state != null)
+                return state; 
+            
+            throw new Exception($"ClientLobbyState not found for id: {clientId}");
+        }
+        
+    }
+}

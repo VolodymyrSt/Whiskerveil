@@ -1,3 +1,5 @@
+using _Project.Code.Runtime.Character.Factory;
+using _Project.Code.Runtime.CommonServices.ClientRegistry;
 using _Project.Code.Runtime.CommonServices.RolePicker;
 using _Project.Code.Runtime.CommonServices.SceneLoader;
 using Unity.Netcode;
@@ -14,12 +16,17 @@ namespace _Project.Code.Runtime.Infrustructure.EntryPoints
         
         private IRolePicker _rolePicker;
         private ISceneLoader _sceneLoader;
+        private IClientsRegistry _clientsRegistry;
+        private ICharacterFactory _characterFactory;
         
         [Inject]
-        private void Construct(IRolePicker rolePicker, ISceneLoader sceneLoader)
+        private void Construct(IRolePicker rolePicker, ISceneLoader sceneLoader
+            , IClientsRegistry clientsRegistry, ICharacterFactory characterFactory)
         {
             _rolePicker = rolePicker;
             _sceneLoader = sceneLoader;
+            _clientsRegistry = clientsRegistry;
+            _characterFactory = characterFactory;
         }
 
         public override void OnNetworkSpawn()
@@ -29,6 +36,9 @@ namespace _Project.Code.Runtime.Infrustructure.EntryPoints
                 _hub.gameObject.SetActive(false);
                 return;
             }
+
+            foreach (var profile in _clientsRegistry.Profiles)
+                _characterFactory.CreateCharacterByProfile(profile, Vector3.back, Quaternion.identity);
             
             _exitButton.onClick.AddListener(() => {
                 _sceneLoader.LoadSync("Lobby");

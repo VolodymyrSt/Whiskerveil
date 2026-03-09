@@ -100,7 +100,7 @@ MonoBehaviour:
       - {fileID: 11400000, guid: 7ad077c011733c744a7b83a63e6ec08e, type: 2}
     TickRate: 30
     ClientConnectionBufferTimeout: 10
-    ConnectionApproval: 0
+    ConnectionApproval: 1
     ConnectionData: 
     EnableTimeResync: 0
     TimeResyncInterval: 30
@@ -144,7 +144,7 @@ MonoBehaviour:
   m_DisconnectTimeoutMS: 30000
   ConnectionData:
     Address: 127.0.0.1
-    Port: 1111
+    Port: 1112
     ServerListenAddress: 127.0.0.1
     ClientBindPort: 0
   DebugSimulator:

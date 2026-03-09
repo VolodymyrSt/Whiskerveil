@@ -1,4 +1,5 @@
 using _Project.Code.Runtime.CommonServices.Network;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
@@ -9,6 +10,7 @@ namespace _Project.Code.Runtime.UI.Menu
     {
         [SerializeField] private Button _hostButton;
         [SerializeField] private Button _clientButton;
+        [SerializeField] private TMP_InputField _nicknameInputField;
         
         private IHostNetworkService _hostNetworkService;
         private IClientNetworkService _clientNetworkService;
@@ -22,15 +24,11 @@ namespace _Project.Code.Runtime.UI.Menu
         
         private void Awake()
         {
-            _hostButton.onClick.AddListener((() =>
-            {
-                _hostNetworkService.StartHost();
-            }));
+            _hostButton.onClick.AddListener(() =>
+                _hostNetworkService.StartHost(_nicknameInputField.text));
             
-            _clientButton.onClick.AddListener((() =>
-            {
-                _clientNetworkService.StartClient();
-            }));
+            _clientButton.onClick.AddListener(() => 
+                _clientNetworkService.StartClient(_nicknameInputField.text));
         }
 
         private void OnDestroy()

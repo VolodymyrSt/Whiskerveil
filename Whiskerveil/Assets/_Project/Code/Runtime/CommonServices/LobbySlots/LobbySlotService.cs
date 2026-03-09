@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using _Project.Code.Runtime.Character;
 using _Project.Code.Runtime.CommonServices.RolePicker;
 using _Project.Code.Runtime.Configs.Lobby;
+using Unity.Collections;
 using Unity.Netcode;
 
 namespace _Project.Code.Runtime.CommonServices.LobbySlots
@@ -34,7 +35,7 @@ namespace _Project.Code.Runtime.CommonServices.LobbySlots
             throw new KeyNotFoundException($"LobbySlot with role {role} not available");
         }
 
-        public LobbySlot GetSlotById(string id)
+        public LobbySlot GetSlotById(FixedString64Bytes id)
         {
             LobbySlot foundSlot = _slots.Find(x => x != null && x.Id == id);
 
