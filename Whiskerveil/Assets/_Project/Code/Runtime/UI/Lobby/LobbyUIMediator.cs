@@ -97,9 +97,22 @@ namespace _Project.Code.Runtime.UI.Lobby
         [ClientRpc]
         private void ShowSwapRoleButtonClientRpc() => 
             _swapRoleButton.gameObject.SetActive(true);
+        
+        [ClientRpc]
+        private void ShowReadyButtonClientRpc() => 
+            _readyButton.gameObject.SetActive(true);
+        
+        [ClientRpc]
+        private void HideReadyButtonClientRpc() => 
+            _readyButton.gameObject.SetActive(false);
 
         private void OnLobbyStateChanged(int actualClientStatesCount)
         {
+            if (actualClientStatesCount < 2)
+                HideReadyButtonClientRpc();
+            else
+                ShowReadyButtonClientRpc();
+            
             if (actualClientStatesCount >= 2)
                 ShowSwapRoleButtonClientRpc();
             else

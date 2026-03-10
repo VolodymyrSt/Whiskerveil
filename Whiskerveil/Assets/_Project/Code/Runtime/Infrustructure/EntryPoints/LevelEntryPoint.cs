@@ -1,5 +1,6 @@
 using _Project.Code.Runtime.Character.Factory;
 using _Project.Code.Runtime.CommonServices.ClientRegistry;
+using _Project.Code.Runtime.CommonServices.GameState;
 using _Project.Code.Runtime.CommonServices.RolePicker;
 using _Project.Code.Runtime.CommonServices.SceneLoader;
 using Unity.Netcode;
@@ -18,15 +19,18 @@ namespace _Project.Code.Runtime.Infrustructure.EntryPoints
         private ISceneLoader _sceneLoader;
         private IClientsRegistry _clientsRegistry;
         private ICharacterFactory _characterFactory;
+        private IGameStateService _gameStateService;
         
         [Inject]
         private void Construct(IRolePicker rolePicker, ISceneLoader sceneLoader
-            , IClientsRegistry clientsRegistry, ICharacterFactory characterFactory)
+            , IClientsRegistry clientsRegistry, ICharacterFactory characterFactory
+            , IGameStateService gameStateService)
         {
             _rolePicker = rolePicker;
             _sceneLoader = sceneLoader;
             _clientsRegistry = clientsRegistry;
             _characterFactory = characterFactory;
+            _gameStateService = gameStateService;
         }
 
         public override void OnNetworkSpawn()

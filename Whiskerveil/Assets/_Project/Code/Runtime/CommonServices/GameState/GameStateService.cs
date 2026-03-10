@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using _Project.Code.Runtime.Character;
 using _Project.Code.Runtime.CommonServices.ClientRegistry;
 using _Project.Code.Runtime.Utils;
+using Unity.Netcode;
 
 namespace _Project.Code.Runtime.CommonServices.GameState
 {
@@ -27,12 +30,12 @@ namespace _Project.Code.Runtime.CommonServices.GameState
             OnLobbyStateChanged?.Invoke(_clientLobbyStates.Count);
         }
 
-        public void AddClientLobbyState(ClientProfile profile)
+        public void AddClientLobbyState(ClientProfile profile, ICharacter character)
         {
             if (!Net.IsServer) return;
             
             _clientLobbyStates.Add(new ClientLobbyState 
-                { ClientId = profile.Id, IsReadyToPlay = false });
+                { ClientId = profile.Id, IsReadyToPlay = false, Character = character });
             
             OnLobbyStateChanged?.Invoke(_clientLobbyStates.Count);
         }
@@ -49,7 +52,6 @@ namespace _Project.Code.Runtime.CommonServices.GameState
         public void SetSceneState(SceneState sceneState)
         {
             if (!Net.IsServer) return;
-            
             _currentSceneState = sceneState;
         }
 
@@ -59,6 +61,8 @@ namespace _Project.Code.Runtime.CommonServices.GameState
             
             ClientLobbyState state = GetClientLobbyStateById(clientId);
             state.IsReadyToPlay = isReadyToPlay;
+            
+            state.Character.SetReadyInLobby(isReadyToPlay);
             
             if (IsAllClientsReadyToPlay())
                 OnAllClientReadyToPlay?.Invoke();

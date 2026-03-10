@@ -144,7 +144,7 @@ MonoBehaviour:
   m_DisconnectTimeoutMS: 30000
   ConnectionData:
     Address: 127.0.0.1
-    Port: 1112
+    Port: 2424
     ServerListenAddress: 127.0.0.1
     ClientBindPort: 0
   DebugSimulator:

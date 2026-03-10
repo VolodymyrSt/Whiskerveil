@@ -1,3 +1,4 @@
+using _Project.Code.Runtime.Character;
 using _Project.Code.Runtime.Character.Factory;
 using _Project.Code.Runtime.CommonServices.ClientRegistry;
 using _Project.Code.Runtime.CommonServices.GameState;
@@ -70,8 +71,8 @@ namespace _Project.Code.Runtime.Infrustructure.EntryPoints
             else
                 slot = _lobbySlotService.GetSlotById(profile.SlotId);
             
-            _gameStateService.AddClientLobbyState(profile); //
-            _characterFactory.CreateCharacterByProfile(profile, slot.Position, slot.Rotation);
+            ICharacter character = _characterFactory.CreateCharacterByProfile(profile, slot.Position, slot.Rotation);
+            _gameStateService.AddClientLobbyState(profile, character);
         }
         
         private void LoadClientById(ulong clientId)
@@ -82,8 +83,11 @@ namespace _Project.Code.Runtime.Infrustructure.EntryPoints
                 ConfigureClientByProfile(profile);
         }
         
-        private void OnAllClientsReady() => 
-            _sceneLoader.LoadSync(SceneList.Level);
+        private void OnAllClientsReady()
+        {
+            _sceneLoader.LoadSync(SceneList.Level, () => 
+                _gameStateService.SetSceneState(SceneState.InLevel));
+        }
 
         public override void OnNetworkDespawn()
         {

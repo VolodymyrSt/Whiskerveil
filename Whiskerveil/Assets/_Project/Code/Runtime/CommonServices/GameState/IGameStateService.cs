@@ -1,4 +1,5 @@
 using System;
+using _Project.Code.Runtime.Character;
 using _Project.Code.Runtime.CommonServices.ClientRegistry;
 
 namespace _Project.Code.Runtime.CommonServices.GameState
@@ -11,7 +12,7 @@ namespace _Project.Code.Runtime.CommonServices.GameState
         void UpdateClientState(ulong clientId, bool isReadyToPlay);
         void ClearClientLobbyStates();
         void RemoveClientLobbyState(ulong clientId);
-        void AddClientLobbyState(ClientProfile profile);
+        void AddClientLobbyState(ClientProfile profile, ICharacter character);
         event Action<int> OnLobbyStateChanged;
     }
 }

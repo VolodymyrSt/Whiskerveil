@@ -11,7 +11,7 @@ namespace _Project.Code.Runtime.Character
 
         Transform Transform { get; }
         GameRole Role { get; }
-        ulong Id { get; }
-        void SetName(string name);
+        ICharacterView View { get; }
+        void SetReadyInLobby(bool ready);
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using _Project.Code.Runtime.Character.View;
 using _Project.Code.Runtime.CommonServices.RolePicker;
+using UnityEngine;
 
 namespace _Project.Code.Runtime.Character
 {
@@ -8,6 +9,6 @@ namespace _Project.Code.Runtime.Character
     public struct ViewByRoleData
     {
         public GameRole Role;
-        public CharacterView View;
+        public GameObject View;
     }
 }

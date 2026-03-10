@@ -1,53 +1,54 @@
-using System.Collections.Generic;
-using _Project.Code.Runtime.Character.Factory;
 using _Project.Code.Runtime.Character.View;
-using _Project.Code.Runtime.CommonServices.LobbySlots;
 using _Project.Code.Runtime.CommonServices.RolePicker;
-using Sirenix.Utilities;
-using TMPro;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
-using Zenject;
 
 namespace _Project.Code.Runtime.Character
 {
     public class Character : NetworkBehaviour, ICharacter
     {
-        [SerializeField] private List<ViewByRoleData> _viewByRoles = new List<ViewByRoleData>();
+        [SerializeField] private CharacterView _view;
         
+        private readonly NetworkVariable<FixedString64Bytes> _name = new NetworkVariable<FixedString64Bytes>();
         private readonly NetworkVariable<GameRole> _role = new NetworkVariable<GameRole>();
-        private NetworkVariable<FixedString64Bytes> _name = new NetworkVariable<FixedString64Bytes>();
-
-        [Header("Nickname")]
-        [SerializeField] private RectTransform _nicknameRoot;
-        [SerializeField] private TextMeshProUGUI _nickname;
+        private readonly NetworkVariable<bool> _isReadyInLobby = new NetworkVariable<bool>(false);
         
-        private ICharacterView _view;
-
         public Transform Transform => transform;
+        public ICharacterView View => _view;
         public GameRole Role => _role.Value;
-        public ulong Id => OwnerClientId;//bad
-        
-        public void SetName(string name)
-        {
-            if (!IsServer) return;
-            _name.Value = name;
-        }
+
+        private void OnValidate() => 
+            _view ??= GetComponentInChildren<CharacterView>();
 
         public override void OnNetworkSpawn()
         {
             _role.OnValueChanged += SwitchViewBaseOnRole;
             _name.OnValueChanged += ChangeName;
+            _isReadyInLobby.OnValueChanged += OnReadinessInLobbyChanged;
 
             SwitchViewBaseOnRole(_role.Value, _role.Value);
             ChangeName(_name.Value, _name.Value);
+            OnReadinessInLobbyChanged(_isReadyInLobby.Value, _isReadyInLobby.Value);
+        }
+        
+        public void SetReadyInLobby(bool ready)
+        {
+            if (!IsServer) return;
+            _isReadyInLobby.Value = ready;
+        }
+        
+        public void SetName(string characterName)
+        {
+            if (!IsServer) return;
+            _name.Value = characterName;
         }
 
         private void ChangeName(FixedString64Bytes old, FixedString64Bytes @new)
         {
-            _nickname.text = @new.ToString();
-            UpdateNicknamePositionBaseOnView();
+            _view.UpdateName(@new.ToString());
+            _view.UpdateNicknamePositionBaseOnView(_role.Value);
+            _view.UpdateReadyMassagePositionBaseOnView(_role.Value);
         }
 
         public void AssignRole(GameRole role)
@@ -56,35 +57,17 @@ namespace _Project.Code.Runtime.Character
             _role.Value = role;
         }
         
-        private void SwitchViewBaseOnRole(GameRole oldRole, GameRole newRole)
-        {
-            foreach (var data in _viewByRoles)
-            {
-                if (data.Role == newRole)
-                {
-                    _view = data.View;
-                    _view.Toggle(true);
-                }
-                else
-                {
-                    data.View.Toggle(false);
-                }
-            }
-            
-            UpdateNicknamePositionBaseOnView();
-        }
-        
-        private void UpdateNicknamePositionBaseOnView()
-        {
-            _nicknameRoot.anchoredPosition = _role.Value == GameRole.Hider ?
-                new(_nicknameRoot.anchoredPosition.x, 0.8f) :
-                new(_nicknameRoot.anchoredPosition.x, 1.5f); //constants
-        }
+        private void SwitchViewBaseOnRole(GameRole oldRole, GameRole newRole) => 
+            _view.SwitchViewBaseOnRole(newRole);
 
+        private void OnReadinessInLobbyChanged(bool previousValue, bool newValue) => 
+            _view.ToggleReadyLable(newValue);
+        
         public override void OnNetworkDespawn()
         {
             _role.OnValueChanged -= SwitchViewBaseOnRole;
             _name.OnValueChanged -= ChangeName;
+            _isReadyInLobby.OnValueChanged -= OnReadinessInLobbyChanged;
         }
     }
 }
