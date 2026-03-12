@@ -55,17 +55,18 @@ namespace _Project.Code.Runtime.CommonServices.GameState
             _currentSceneState = sceneState;
         }
 
-        public void UpdateClientState(ulong clientId, bool isReadyToPlay)
+        public ClientLobbyState UpdateClientLobbyState(ulong clientId)
         {
-            if (!Net.IsServer) return;
+            if (!Net.IsServer) return null;
             
             ClientLobbyState state = GetClientLobbyStateById(clientId);
-            state.IsReadyToPlay = isReadyToPlay;
-            
-            state.Character.SetReadyInLobby(isReadyToPlay);
+            state.IsReadyToPlay = !state.IsReadyToPlay;
+            state.Character.SetReadyInLobby(state.IsReadyToPlay);
             
             if (IsAllClientsReadyToPlay())
                 OnAllClientReadyToPlay?.Invoke();
+
+            return state;
         }
 
         private bool IsAllClientsReadyToPlay()

@@ -44,15 +44,15 @@ namespace _Project.Code.Runtime.Character.View
         public void UpdateNicknamePositionBaseOnView(GameRole role)
         {
             _nicknameRoot.anchoredPosition = role == GameRole.Hider ?
-                new(_nicknameRoot.anchoredPosition.x, 0.8f) :
-                new(_nicknameRoot.anchoredPosition.x, 1.8f); //constants
+                new(_nicknameRoot.anchoredPosition.x, 0.9f) :
+                new(_nicknameRoot.anchoredPosition.x, 1.6f); //constants
         }
 
         public void UpdateReadyMassagePositionBaseOnView(GameRole role)
         {
             _readyLable.anchoredPosition = role == GameRole.Hider ?
-                new(_readyLable.anchoredPosition.x, 0.6f) :
-                new(_readyLable.anchoredPosition.x, 1.6f); //constants
+                new(_readyLable.anchoredPosition.x, 0.72f) :
+                new(_readyLable.anchoredPosition.x, 1.42f); //constants
         }
     }
 }

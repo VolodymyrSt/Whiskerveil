@@ -78,6 +78,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::_Project.Code.Runtime.Infrustructure.Installers.BootstrapInstaller
   _loadingCurtain: {fileID: 5476118880342679574, guid: 7062aaf346b31ca49b81ff6e8ea11d48, type: 3}
   lobbySlotsDataHolder: {fileID: 11400000, guid: d7d14573f9092e74592220bc1ddb82b9, type: 2}
+  _gameConfig: {fileID: 11400000, guid: 535ccfb1cc96d284a96b8302706bbf58, type: 2}
 --- !u!114 &6960573709486596346
 MonoBehaviour:
   m_ObjectHideFlags: 0

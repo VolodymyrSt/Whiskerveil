@@ -1,3 +1,4 @@
+using System;
 using _Project.Code.Runtime.Character.View;
 using _Project.Code.Runtime.CommonServices.RolePicker;
 using Unity.Collections;
@@ -31,7 +32,24 @@ namespace _Project.Code.Runtime.Character
             ChangeName(_name.Value, _name.Value);
             OnReadinessInLobbyChanged(_isReadyInLobby.Value, _isReadyInLobby.Value);
         }
-        
+
+        /*private void Update()
+        {
+            if (!IsOwner) return;
+            
+            float x = Input.GetAxis("Horizontal");
+            float z = Input.GetAxis("Vertical");
+
+            MoveServerRpc(x, z);
+        }
+
+        [ServerRpc()]
+        private void MoveServerRpc(float x, float z)
+        {
+            var direction = new Vector3(x, 0, z);
+            transform.position += direction * 5f * Time.deltaTime;
+        }*/
+
         public void SetReadyInLobby(bool ready)
         {
             if (!IsServer) return;

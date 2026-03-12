@@ -9,7 +9,7 @@ namespace _Project.Code.Runtime.CommonServices.GameState
         event Action OnAllClientReadyToPlay;
         SceneState CurrentSceneState { get; }
         void SetSceneState(SceneState sceneState);
-        void UpdateClientState(ulong clientId, bool isReadyToPlay);
+        ClientLobbyState UpdateClientLobbyState(ulong clientId);
         void ClearClientLobbyStates();
         void RemoveClientLobbyState(ulong clientId);
         void AddClientLobbyState(ClientProfile profile, ICharacter character);

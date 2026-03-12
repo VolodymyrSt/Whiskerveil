@@ -5,7 +5,9 @@ using _Project.Code.Runtime.CommonServices.LobbySlots;
 using _Project.Code.Runtime.CommonServices.Network;
 using _Project.Code.Runtime.CommonServices.RolePicker;
 using _Project.Code.Runtime.CommonServices.SceneLoader;
+using _Project.Code.Runtime.CommonServices.StaticData;
 using _Project.Code.Runtime.CommonServices.SwapRole;
+using _Project.Code.Runtime.Configs.Game;
 using _Project.Code.Runtime.Configs.Lobby;
 using _Project.Code.Runtime.Infrustructure.AssetsManagement;
 using _Project.Code.Runtime.Infrustructure.EntryPoints;
@@ -19,6 +21,7 @@ namespace _Project.Code.Runtime.Infrustructure.Installers
     {
         [SerializeField] private LoadingCurtain _loadingCurtain;
         [SerializeField] private LobbySlotsDataHolder lobbySlotsDataHolder;
+        [SerializeField] private GameConfigSO _gameConfig;
         
         public override void InstallBindings()
         {
@@ -38,6 +41,7 @@ namespace _Project.Code.Runtime.Infrustructure.Installers
             Container.BindInterfacesTo<ClientsRegistry>().AsSingle();
             Container.BindInterfacesTo<SwapRoleService>().AsSingle();
             Container.BindInterfacesTo<GameStateService>().AsSingle();
+            Container.BindInterfacesTo<StaticDataService>().AsSingle().WithArguments(_gameConfig);
         }
 
         private void BindLoadingCurtain() => 

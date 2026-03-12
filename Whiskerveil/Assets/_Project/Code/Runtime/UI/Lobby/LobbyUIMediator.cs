@@ -1,9 +1,8 @@
+using System.Collections.Generic;
 using _Project.Code.Runtime.Character;
 using _Project.Code.Runtime.CommonServices.ClientRegistry;
 using _Project.Code.Runtime.CommonServices.GameState;
-using _Project.Code.Runtime.CommonServices.LobbySlots;
 using _Project.Code.Runtime.CommonServices.RolePicker;
-using _Project.Code.Runtime.CommonServices.SceneLoader;
 using _Project.Code.Runtime.CommonServices.SwapRole;
 using Unity.Collections;
 using Unity.Netcode;
@@ -17,7 +16,10 @@ namespace _Project.Code.Runtime.UI.Lobby
     {
         [SerializeField] private Button _readyButton;
         [SerializeField] private Button _swapRoleButton;
-        [SerializeField] private Button _acceptSwapRoleButton;
+        
+        [SerializeField] private Image _readySigh;
+        
+        [SerializeField] private SwapRoleWindow _swapRoleWindow;
         
         private IClientsRegistry _clientsRegistry;
         private ISwapRoleService _swapRoleService;
@@ -37,7 +39,8 @@ namespace _Project.Code.Runtime.UI.Lobby
             if (IsServer)
                 _gameStateService.OnLobbyStateChanged += OnLobbyStateChanged;
             
-            _acceptSwapRoleButton.gameObject.SetActive(false);
+            _readySigh.gameObject.SetActive(false);
+            _swapRoleWindow.Hide();
             
             _readyButton.onClick.AddListener(() => OnReadyButtonPressedServerRpc());
             _swapRoleButton.onClick.AddListener(() => RequestSwapRoleServerRpc());
@@ -45,66 +48,93 @@ namespace _Project.Code.Runtime.UI.Lobby
 
 
         [ServerRpc(RequireOwnership = false)]
-        private void OnReadyButtonPressedServerRpc(ServerRpcParams rpcParams = default) => 
-            _gameStateService.UpdateClientState(rpcParams.Receive.SenderClientId, true);
+        private void OnReadyButtonPressedServerRpc(ServerRpcParams rpcParams = default)
+        {
+            ClientLobbyState updatedState = _gameStateService
+                .UpdateClientLobbyState(rpcParams.Receive.SenderClientId);
+            
+            ToggleSwapRoleButtonFor(rpcParams.Receive.SenderClientId, updatedState.IsReadyToPlay);
+
+            OnReadyButtonPressedClientRpc(updatedState.IsReadyToPlay, new ClientRpcParams {
+                Send = new ClientRpcSendParams { TargetClientIds = new ulong[] { rpcParams.Receive.SenderClientId } }
+            });
+        }
 
         [ServerRpc(RequireOwnership = false)]
         private void RequestSwapRoleServerRpc(ServerRpcParams rpcParams = default)
         {
             ulong senderId = rpcParams.Receive.SenderClientId;
-            ClientProfile clientProfile = _clientsRegistry.GetById(senderId);
+            ClientProfile requesterProfile = _clientsRegistry.GetById(senderId);
             
             HideSwapRoleButtonClientRpc();
             
             foreach (ClientProfile profile in _clientsRegistry.Profiles)
             {
                 if (profile.Id == senderId) continue;
-                if (profile.Role == clientProfile.Role) continue;
+                if (profile.Role == requesterProfile.Role) continue;
 
                 var onlyToTarget = new ClientRpcParams {
                     Send = new ClientRpcSendParams { TargetClientIds = new ulong[] { profile.Id } }
                 };
                 
-                ShowAcceptButtonToClientRpc(senderId, onlyToTarget);
+                ShowSwapRoleWindowToClientRpc(requesterProfile.Name, requesterProfile.Role, senderId, onlyToTarget);
             }
         }
         
         [ClientRpc]
-        private void ShowAcceptButtonToClientRpc(ulong requesterId, ClientRpcParams clientRpcParams = default)
+        private void ShowSwapRoleWindowToClientRpc(FixedString64Bytes requesterName, GameRole requesterRole,
+            ulong requesterId, ClientRpcParams clientRpcParams = default)
         {
-            _acceptSwapRoleButton.gameObject.SetActive(true);
-            _acceptSwapRoleButton.onClick.RemoveAllListeners();
-            _acceptSwapRoleButton.onClick.AddListener(() => AcceptSwapRoleServerRpc(requesterId));
+            _swapRoleWindow.Show(requesterName, requesterRole, () =>
+                AcceptSwapRoleServerRpc(requesterId), _swapRoleWindow.Hide);
         }
         
         [ServerRpc(RequireOwnership = false)]
         private void AcceptSwapRoleServerRpc(ulong requesterId, ServerRpcParams rpcParams = default)
         {
             _swapRoleService.SwapRoleBetween(requesterId, rpcParams.Receive.SenderClientId);
-
-            HideAcceptButtonClientRpc();
+            
+            HideSwapRoleWindowClientRpc();
             ShowSwapRoleButtonClientRpc();
         }
         
         [ClientRpc]
-        private void HideAcceptButtonClientRpc() => 
-            _acceptSwapRoleButton.gameObject.SetActive(false);
-        
+        private void HideSwapRoleWindowClientRpc() => 
+            _swapRoleWindow.Hide();
+
         [ClientRpc]
-        private void HideSwapRoleButtonClientRpc() => 
+        private void HideSwapRoleButtonClientRpc(ClientRpcParams rpcParams = default) => 
             _swapRoleButton.gameObject.SetActive(false);
         
         [ClientRpc]
-        private void ShowSwapRoleButtonClientRpc() => 
+        private void ShowSwapRoleButtonClientRpc(ClientRpcParams rpcParams = default) => 
             _swapRoleButton.gameObject.SetActive(true);
         
         [ClientRpc]
-        private void ShowReadyButtonClientRpc() => 
+        private void ShowReadyButtonClientRpc(ClientRpcParams rpcParams = default) => 
             _readyButton.gameObject.SetActive(true);
         
         [ClientRpc]
         private void HideReadyButtonClientRpc() => 
             _readyButton.gameObject.SetActive(false);
+        
+        [ClientRpc]
+        private void OnReadyButtonPressedClientRpc(bool condition, ClientRpcParams rpcParams = default) => 
+            _readySigh.gameObject.SetActive(condition);
+
+        private void ToggleSwapRoleButtonFor(ulong clientId, bool condition)
+        {
+            if (condition) {
+                HideSwapRoleButtonClientRpc(new ClientRpcParams() {
+                    Send = new ClientRpcSendParams { TargetClientIds = new ulong[] {clientId} }
+                });
+            }
+            else {
+                ShowSwapRoleButtonClientRpc(new ClientRpcParams() {
+                    Send = new ClientRpcSendParams { TargetClientIds = new ulong[] {clientId} }
+                });
+            }
+        }
 
         private void OnLobbyStateChanged(int actualClientStatesCount)
         {
@@ -126,7 +156,6 @@ namespace _Project.Code.Runtime.UI.Lobby
             
             _readyButton.onClick.RemoveAllListeners();
             _swapRoleButton.onClick.RemoveAllListeners();
-            _acceptSwapRoleButton.onClick.RemoveAllListeners();
         }
     }
 }
