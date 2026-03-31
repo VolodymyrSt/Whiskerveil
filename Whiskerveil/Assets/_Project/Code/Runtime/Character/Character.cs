@@ -31,6 +31,9 @@ namespace _Project.Code.Runtime.Character
             SwitchViewBaseOnRole(_role.Value, _role.Value);
             ChangeName(_name.Value, _name.Value);
             OnReadinessInLobbyChanged(_isReadyInLobby.Value, _isReadyInLobby.Value);
+            
+            if (IsOwner)
+                _view.ToggleStandZone(enable: true);
         }
 
         /*private void Update()

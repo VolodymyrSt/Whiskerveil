@@ -18,8 +18,9 @@ namespace _Project.Code.Runtime.CommonServices.GameState
         private readonly List<ClientLobbyState> _clientLobbyStates = new();
         private SceneState _currentSceneState = SceneState.None;
         
+        public List<ClientLobbyState> LobbyStates => _clientLobbyStates;
         public SceneState CurrentSceneState => _currentSceneState;
-
+        
         public void RemoveClientLobbyState(ulong clientId)
         {
             if (!Net.IsServer) return;
@@ -40,7 +41,7 @@ namespace _Project.Code.Runtime.CommonServices.GameState
             OnLobbyStateChanged?.Invoke(_clientLobbyStates.Count);
         }
         
-        public void ClearClientLobbyStates()
+        public void PrepairForClientConnection()
         {
             if (!Net.IsServer) return;
             
@@ -68,6 +69,16 @@ namespace _Project.Code.Runtime.CommonServices.GameState
 
             return state;
         }
+        
+        public ClientLobbyState GetClientLobbyStateById(ulong clientId)
+        {
+            ClientLobbyState state = _clientLobbyStates.Find(x => x.ClientId == clientId);
+
+            if (state != null)
+                return state; 
+            
+            throw new Exception($"ClientLobbyState not found for id: {clientId}");
+        }
 
         private bool IsAllClientsReadyToPlay()
         {
@@ -77,16 +88,5 @@ namespace _Project.Code.Runtime.CommonServices.GameState
             
             return true;
         }
-
-        private ClientLobbyState GetClientLobbyStateById(ulong clientId)
-        {
-            ClientLobbyState state = _clientLobbyStates.Find(x => x.ClientId == clientId);
-
-            if (state != null)
-                return state; 
-            
-            throw new Exception($"ClientLobbyState not found for id: {clientId}");
-        }
-        
     }
 }

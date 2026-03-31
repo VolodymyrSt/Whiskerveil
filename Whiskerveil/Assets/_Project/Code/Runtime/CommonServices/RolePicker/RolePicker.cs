@@ -20,6 +20,18 @@ namespace _Project.Code.Runtime.CommonServices.RolePicker
             return roleSlot.Role;
         }
 
+        public void RestoreRole(GameRole role)
+        {
+            RoleSlot roleSlot = _roleSlots.Find(x => x.Role == role && x.IsTaken);
+            roleSlot.IsTaken = false;
+        }
+        
+        public void RestoreAll()
+        {
+            foreach (RoleSlot roleSlot in _roleSlots)
+                roleSlot.IsTaken = false;
+        }
+
         public void PickRoleForEachPlayers(ICharacter[] characters)
         {
             if (characters.Length < 2)

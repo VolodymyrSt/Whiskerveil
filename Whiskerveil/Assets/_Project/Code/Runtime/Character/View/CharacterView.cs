@@ -5,6 +5,7 @@ using TMPro;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace _Project.Code.Runtime.Character.View
 {
@@ -12,17 +13,20 @@ namespace _Project.Code.Runtime.Character.View
     {
         [SerializeField] private List<ViewByRoleData> _viewByRoles = new List<ViewByRoleData>();
         
-        private readonly NetworkVariable<bool> _isReadyInLobby = new NetworkVariable<bool>(false);
-
+        [SerializeField] private Transform _highlightStandZone;
+        
         [Header("Nickname")]
         [SerializeField] private RectTransform _nicknameRoot;
         [SerializeField] private TextMeshProUGUI _nickname;
         
         [Header("ReadyMassage")]
         [SerializeField] private RectTransform _readyLable;
-        
+
         public void UpdateName(string characterName) => 
             _nickname.text = characterName;
+
+        public void ToggleStandZone(bool enable) => 
+            _highlightStandZone.gameObject.SetActive(enable);
 
         public void SwitchViewBaseOnRole(GameRole role)
         {

@@ -1,5 +1,4 @@
 using System;
-using _Project.Code.Runtime.CommonServices.ClientRegistry;
 using _Project.Code.Runtime.CommonServices.RolePicker;
 using _Project.Code.Runtime.CommonServices.StaticData;
 using TMPro;
@@ -29,7 +28,7 @@ namespace _Project.Code.Runtime.UI.Lobby
         [Inject]
         private void Construct(IStaticDataService staticDataService) => 
             _staticDataService = staticDataService;
-        
+
         public void Show(FixedString64Bytes requesterName, GameRole requesterRole,
             Action onAccepted, Action onDeclined)
         {

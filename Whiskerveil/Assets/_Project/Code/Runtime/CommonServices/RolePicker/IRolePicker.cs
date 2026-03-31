@@ -6,5 +6,7 @@ namespace _Project.Code.Runtime.CommonServices.RolePicker
     {
         void PickRoleForEachPlayers(ICharacter[] characters);
         GameRole GetNextAvailableRole();
+        void RestoreRole(GameRole role);
+        void RestoreAll();
     }
 }

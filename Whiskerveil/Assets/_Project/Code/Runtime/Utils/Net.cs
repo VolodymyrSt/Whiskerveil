@@ -9,5 +9,11 @@ namespace _Project.Code.Runtime.Utils
         
         public static bool IsClient =>
             NetworkManager.Singleton.IsClient;
+        
+        public static void EnsureStopped(NetworkManager nm)
+        {
+            if (nm.IsListening)
+                nm.Shutdown();
+        }
     }
 }

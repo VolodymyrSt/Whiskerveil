@@ -1,7 +1,9 @@
+using Cysharp.Threading.Tasks;
+
 namespace _Project.Code.Runtime.CommonServices.Network
 {
     public interface IClientNetworkService
     {
-        void StartClient(string nickname);
+        UniTask StartClient(string nickname);
     }
 }

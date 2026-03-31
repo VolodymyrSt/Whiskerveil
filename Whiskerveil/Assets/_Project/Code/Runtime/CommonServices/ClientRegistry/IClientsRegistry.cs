@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using _Project.Code.Runtime.CommonServices.RolePicker;
 
 namespace _Project.Code.Runtime.CommonServices.ClientRegistry
 {
@@ -14,5 +15,6 @@ namespace _Project.Code.Runtime.CommonServices.ClientRegistry
         int TotalCount { get; }
         event Action<ClientProfile> OnNewClientAdded;
         event Action<ulong> OnClientRemoved;
+        ClientProfile GetFirstByRole(GameRole role);
     }
 }

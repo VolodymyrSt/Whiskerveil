@@ -3,7 +3,7 @@ using _Project.Code.Runtime.Utils;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace _Project.Code.Runtime.CommonServices.LobbySlots
+namespace _Project.Code.Runtime.CommonServices.SlotsManagement
 {
     public class PlayerPlacementSlot : MonoBehaviour
     {

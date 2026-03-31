@@ -1,4 +1,5 @@
 using _Project.Code.Runtime.CommonServices.Network;
+using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -25,10 +26,10 @@ namespace _Project.Code.Runtime.UI.Menu
         private void Awake()
         {
             _hostButton.onClick.AddListener(() =>
-                _hostNetworkService.StartHost(_nicknameInputField.text));
+                _hostNetworkService.StartHost(_nicknameInputField.text).Forget());
             
             _clientButton.onClick.AddListener(() => 
-                _clientNetworkService.StartClient(_nicknameInputField.text));
+                _clientNetworkService.StartClient(_nicknameInputField.text).Forget());
         }
 
         private void OnDestroy()

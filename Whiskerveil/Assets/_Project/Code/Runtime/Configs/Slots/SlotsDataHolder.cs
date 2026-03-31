@@ -1,17 +1,16 @@
 using System;
 using System.Collections.Generic;
-using _Project.Code.Runtime.CommonServices.LobbySlots;
 using _Project.Code.Runtime.CommonServices.RolePicker;
-using _Project.Code.Runtime.Utils;
+using _Project.Code.Runtime.CommonServices.SlotsManagement;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace _Project.Code.Runtime.Configs.Lobby
+namespace _Project.Code.Runtime.Configs.Slots
 {
-    [CreateAssetMenu(fileName = "LobbySlotsHolder", menuName = "Configs/Lobby/LobbySlotsHolder")]
-    public class LobbySlotsDataHolder : ScriptableObject
+    [CreateAssetMenu(fileName = "SlotsHolder", menuName = "Configs/Slots/SlotsHolder")]
+    public class SlotsDataHolderSO : ScriptableObject
     {
-        public List<LobbySlotData> Slots = new();
+        public List<SlotData> Slots = new();
 
         [Button("Find slots", ButtonSizes.Medium, ButtonStyle.Box)]
         private void Find()
@@ -22,7 +21,7 @@ namespace _Project.Code.Runtime.Configs.Lobby
 
             foreach (PlayerPlacementSlot playerPlacementSlot in playerPlacementSlots)
             {
-                Slots.Add(new LobbySlotData {
+                Slots.Add(new SlotData {
                     Name     = playerPlacementSlot.gameObject.name,
                     Id       = playerPlacementSlot.Id,
                     ForRole  =  playerPlacementSlot.ForRole,
@@ -34,7 +33,7 @@ namespace _Project.Code.Runtime.Configs.Lobby
     }
 
     [Serializable]
-    public struct LobbySlotData
+    public struct SlotData
     {
         public string Name;
         public string Id;

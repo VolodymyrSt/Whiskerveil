@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using _Project.Code.Runtime.CommonServices.RolePicker;
 
 namespace _Project.Code.Runtime.CommonServices.ClientRegistry
 {
@@ -34,6 +36,12 @@ namespace _Project.Code.Runtime.CommonServices.ClientRegistry
         public ClientProfile GetById(ulong clientId)
         {
             ClientProfile foundProfile = _profiles.Find(x => x.Id == clientId);
+            return foundProfile;
+        }
+        
+        public ClientProfile GetFirstByRole(GameRole role)
+        {
+            ClientProfile foundProfile = _profiles.FirstOrDefault(x => x.Role == role);
             return foundProfile;
         }
 
