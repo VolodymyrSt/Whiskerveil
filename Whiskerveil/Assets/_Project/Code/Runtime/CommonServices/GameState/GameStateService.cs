@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using _Project.Code.Runtime.Character;
 using _Project.Code.Runtime.CommonServices.ClientRegistry;
+using _Project.Code.Runtime.Gameplay.Character.Preview;
 using _Project.Code.Runtime.Utils;
 using Unity.Netcode;
 
@@ -31,12 +31,12 @@ namespace _Project.Code.Runtime.CommonServices.GameState
             OnLobbyStateChanged?.Invoke(_clientLobbyStates.Count);
         }
 
-        public void AddClientLobbyState(ClientProfile profile, ICharacter character)
+        public void AddClientLobbyState(ClientProfile profile, IPreview character)
         {
             if (!Net.IsServer) return;
             
             _clientLobbyStates.Add(new ClientLobbyState 
-                { ClientId = profile.Id, IsReadyToPlay = false, Character = character });
+                { ClientId = profile.Id, IsReadyToPlay = false, Preview = character });
             
             OnLobbyStateChanged?.Invoke(_clientLobbyStates.Count);
         }
@@ -62,7 +62,7 @@ namespace _Project.Code.Runtime.CommonServices.GameState
             
             ClientLobbyState state = GetClientLobbyStateById(clientId);
             state.IsReadyToPlay = !state.IsReadyToPlay;
-            state.Character.SetReadyInLobby(state.IsReadyToPlay);
+            state.Preview.SetReadyInLobby(state.IsReadyToPlay);
             
             if (IsAllClientsReadyToPlay())
                 OnAllClientReadyToPlay?.Invoke();

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using _Project.Code.Runtime.Character;
 using _Project.Code.Runtime.CommonServices.ClientRegistry;
+using _Project.Code.Runtime.Gameplay.Character.Preview;
 
 namespace _Project.Code.Runtime.CommonServices.GameState
 {
@@ -14,7 +14,7 @@ namespace _Project.Code.Runtime.CommonServices.GameState
         ClientLobbyState UpdateClientLobbyState(ulong clientId);
         void PrepairForClientConnection();
         void RemoveClientLobbyState(ulong clientId);
-        void AddClientLobbyState(ClientProfile profile, ICharacter character);
+        void AddClientLobbyState(ClientProfile profile, IPreview character);
         event Action<int> OnLobbyStateChanged;
         ClientLobbyState GetClientLobbyStateById(ulong clientId);
     }

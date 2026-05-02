@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using _Project.Code.Runtime.Character;
+using _Project.Code.Runtime.Gameplay.Character;
 using UnityEngine;
 
 namespace _Project.Code.Runtime.CommonServices.RolePicker

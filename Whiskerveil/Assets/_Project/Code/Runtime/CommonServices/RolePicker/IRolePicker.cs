@@ -1,4 +1,4 @@
-using _Project.Code.Runtime.Character;
+using _Project.Code.Runtime.Gameplay.Character;
 
 namespace _Project.Code.Runtime.CommonServices.RolePicker
 {

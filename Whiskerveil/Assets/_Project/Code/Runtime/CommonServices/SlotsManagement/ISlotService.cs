@@ -11,5 +11,6 @@ namespace _Project.Code.Runtime.CommonServices.SlotsManagement
         BaseSlot GetFreeLevelSlotFor(GameRole role);
         void PrepareLevelSlots();
         void Initialize();
+        void DebugAllLobbySlots();
     }
 }

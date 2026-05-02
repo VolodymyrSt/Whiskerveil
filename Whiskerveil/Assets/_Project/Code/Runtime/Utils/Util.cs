@@ -1,5 +1,4 @@
 using System;
-using _Project.Code.Runtime.Character;
 using Unity.Netcode;
 using Object = UnityEngine.Object;
 

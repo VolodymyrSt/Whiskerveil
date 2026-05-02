@@ -3,6 +3,7 @@ using _Project.Code.Runtime.CommonServices.RolePicker;
 using _Project.Code.Runtime.CommonServices.StaticData;
 using Unity.Collections;
 using Unity.Netcode;
+using UnityEngine;
 
 namespace _Project.Code.Runtime.CommonServices.SlotsManagement
 {
@@ -22,12 +23,18 @@ namespace _Project.Code.Runtime.CommonServices.SlotsManagement
             
             _lobbySlots.Clear();
             _levelSlots.Clear();
-            
+
             foreach (var slotData in _staticDataService.LobbySlotsDataHolder.Slots)
                 _lobbySlots.Add(new LobbySlot(slotData.Id, slotData.ForRole, slotData.Position, slotData.Rotation));
             
             foreach (var slotData in _staticDataService.LevelSlotsDataHolder.Slots)
                 _levelSlots.Add(new BaseSlot(slotData.ForRole, slotData.Position, slotData.Rotation));
+        }
+
+        public void DebugAllLobbySlots()
+        {
+            foreach (var slotData in _lobbySlots)
+                Debug.Log($"[SlotService] Adding lobby slot: id={slotData.Id}, role={slotData.ForRole}");
         }
 
         public void PrepareLobbySlots()

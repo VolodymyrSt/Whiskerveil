@@ -1,13 +1,14 @@
-using _Project.Code.Runtime.Character;
-using _Project.Code.Runtime.Character.Factory;
 using _Project.Code.Runtime.CommonServices.ClientRegistry;
 using _Project.Code.Runtime.CommonServices.GameState;
+using _Project.Code.Runtime.CommonServices.InputManagement;
 using _Project.Code.Runtime.CommonServices.Network;
 using _Project.Code.Runtime.CommonServices.RolePicker;
 using _Project.Code.Runtime.CommonServices.SceneLoader;
 using _Project.Code.Runtime.CommonServices.SlotsManagement;
 using _Project.Code.Runtime.CommonServices.WindowManagement;
-using _Project.Code.Runtime.UI.Lobby;
+using _Project.Code.Runtime.Gameplay.Character.Factory;
+using _Project.Code.Runtime.Gameplay.Character.Preview;
+using _Project.Code.Runtime.Gameplay.Character.Preview.Factory;
 using Unity.Netcode;
 using UnityEngine;
 using Zenject;
@@ -18,26 +19,28 @@ namespace _Project.Code.Runtime.Infrustructure.EntryPoints
     {
         private IHostNetworkService _hostNetworkService;
         private ISlotService _slotService;
-        private ICharacterFactory _characterFactory;
+        private ICharacterPreviewFactory _characterPreviewFactory;
         private IGameStateService _gameStateService;
         private IClientsRegistry _clientsRegistry;
         private IWindowService _windowService;
         private ISceneLoader _sceneLoader;
         private IRolePicker _rolePicker;
+        private IInputService _input;
 
         [Inject]
         public void Construct(IHostNetworkService hostNetworkService, ISlotService slotService
-            , ICharacterFactory characterFactory, IClientsRegistry clientsRegistry, IGameStateService gameStateService
-            ,ISceneLoader sceneLoader, IWindowService windowService, IRolePicker rolePicker)
+            , ICharacterPreviewFactory characterFactory, IClientsRegistry clientsRegistry, IGameStateService gameStateService
+            ,ISceneLoader sceneLoader, IWindowService windowService, IRolePicker rolePicker, IInputService inputService)
         {
             _hostNetworkService = hostNetworkService;
             _slotService = slotService;
-            _characterFactory = characterFactory;
+            _characterPreviewFactory = characterFactory;
             _clientsRegistry = clientsRegistry;
             _gameStateService = gameStateService;
             _windowService = windowService;
             _sceneLoader = sceneLoader;
             _rolePicker = rolePicker;
+            _input = inputService;
         }
         
         public override void OnNetworkSpawn()
@@ -47,6 +50,9 @@ namespace _Project.Code.Runtime.Infrustructure.EntryPoints
                 NetworkManager.Singleton.OnClientDisconnectCallback += OnDisconnectedFromHost;
                 return;
             }
+            
+            if (IsOwner)
+                _input.Enable();
             
             _slotService.PrepareLobbySlots();
             
@@ -73,18 +79,22 @@ namespace _Project.Code.Runtime.Infrustructure.EntryPoints
                 LobbySlot randomHiderClientSlot = _slotService.GetLobbySlotById(randomHiderClientProfile.SlotId);
                 
                 randomHiderClientProfile.Role = GameRole.Seeker;
-                randomHiderLobbyState.Character.AssignRole(GameRole.Seeker);
-                randomHiderLobbyState.Character.Transform.SetPositionAndRotation(
+                randomHiderLobbyState.Preview.AssignRole(GameRole.Seeker);
+                randomHiderLobbyState.Preview.Transform.SetPositionAndRotation(
                     disconnectedClientSlot.Position, disconnectedClientSlot.Rotation);
                 
                 randomHiderClientSlot.IsTaken = false;
                 disconnectedClientSlot.IsTaken = true;
                 randomHiderClientProfile.SlotId = disconnectedClientSlot.Id;
+                
+                _rolePicker.RestoreRole(GameRole.Hider);
             }
             else
+            {
                 disconnectedClientSlot.IsTaken = false;
-            
-            _rolePicker.RestoreRole(GameRole.Hider);
+                _rolePicker.RestoreRole(GameRole.Hider);
+            }
+
             _clientsRegistry.RemoveProfile(clientId);
             _gameStateService.RemoveClientLobbyState(clientId);
         }
@@ -108,8 +118,8 @@ namespace _Project.Code.Runtime.Infrustructure.EntryPoints
             else
                 slot = _slotService.GetLobbySlotById(profile.SlotId);
             
-            ICharacter character = _characterFactory.CreateCharacterByProfile(profile, slot.Position, slot.Rotation);
-            _gameStateService.AddClientLobbyState(profile, character);
+            IPreview preview = _characterPreviewFactory.CreatePreviewByProfile(profile, slot.Position, slot.Rotation);
+            _gameStateService.AddClientLobbyState(profile, preview);
         }
         
         private void LoadClientById(ulong clientId)

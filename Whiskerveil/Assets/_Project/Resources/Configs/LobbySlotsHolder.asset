@@ -16,20 +16,20 @@ MonoBehaviour:
   - Name: Point_1_Hider
     Id: 5bc6966e-5109-4d3b-9924-9d6b9e3f5072
     ForRole: 1
-    Position: {x: -6, y: 0, z: 4.9}
+    Position: {x: -0.92, y: 0, z: 0.622}
     Rotation: {x: 0, y: -0.93364304, z: -0, w: 0.35820493}
   - Name: Point_2_Hider
     Id: 54dcae3c-1c0e-44dd-8d9c-8764afd9d8f1
     ForRole: 1
-    Position: {x: -5.978, y: 0, z: 3.147}
+    Position: {x: -0.843, y: 0, z: 0.168}
     Rotation: {x: 0, y: -0.841039, z: -0, w: 0.54097456}
   - Name: Point_3_Hider
     Id: 9639cab0-fd71-423d-b656-737febac4e86
     ForRole: 1
-    Position: {x: -6.206, y: 0, z: 1.579}
+    Position: {x: -0.896, y: 0, z: -0.336}
     Rotation: {x: 0, y: -0.6427876, z: -0, w: 0.7660445}
   - Name: Point_Seeker
     Id: 84c11c4a-5fee-4760-9e52-23a06141608f
     ForRole: 2
-    Position: {x: -6.12, y: 0, z: -0.27}
+    Position: {x: -0.918, y: 0, z: -0.934}
     Rotation: {x: 0, y: -0.24792908, z: -0, w: 0.9687782}

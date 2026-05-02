@@ -1,5 +1,5 @@
 using System;
-using _Project.Code.Runtime.Character;
+using _Project.Code.Runtime.Gameplay.Character.Preview;
 
 namespace _Project.Code.Runtime.CommonServices.GameState
 {
@@ -8,6 +8,6 @@ namespace _Project.Code.Runtime.CommonServices.GameState
     {
         public ulong ClientId;
         public bool IsReadyToPlay;
-        public ICharacter Character;
+        public IPreview Preview;
     }
 }

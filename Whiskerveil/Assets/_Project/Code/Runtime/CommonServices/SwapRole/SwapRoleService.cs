@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using _Project.Code.Runtime.Character;
 using _Project.Code.Runtime.CommonServices.ClientRegistry;
 using _Project.Code.Runtime.CommonServices.RolePicker;
 using _Project.Code.Runtime.CommonServices.SlotsManagement;
+using _Project.Code.Runtime.Gameplay.Character.Preview;
 using _Project.Code.Runtime.Utils;
 using UnityEngine;
 
@@ -55,8 +55,8 @@ namespace _Project.Code.Runtime.CommonServices.SwapRole
         {
             if (!Net.IsServer) return;
             
-            ICharacter fromCharacter = Util.GetComponentOnPlayerPrefab<ICharacter>(fromClientId);
-            ICharacter toCharacter = Util.GetComponentOnPlayerPrefab<ICharacter>(toClientId);
+            IPreview fromCharacter = Util.GetComponentOnPlayerPrefab<IPreview>(fromClientId);
+            IPreview toCharacter = Util.GetComponentOnPlayerPrefab<IPreview>(toClientId);
 
             ClientProfile fromProfile = _clientsRegistry.Profiles.Find(x => x.Id == fromClientId);
             ClientProfile toProfile = _clientsRegistry.Profiles.Find(x => x.Id == toClientId);

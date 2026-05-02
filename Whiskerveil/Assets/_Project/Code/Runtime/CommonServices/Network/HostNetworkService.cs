@@ -69,11 +69,11 @@ namespace _Project.Code.Runtime.CommonServices.Network
                 .WithName(nickname)
                 .WithRole(_rolePicker.GetNextAvailableRole()));
             
+            net.OnClientConnectedCallback += OnClientConnect;
+            net.OnClientDisconnectCallback += OnClientDisconnect;
+            
             _sceneLoader.LoadSync(SceneList.Lobby, () => {
                 _gameStateService.SetSceneState(SceneState.InLobby);
-                
-                net.OnClientConnectedCallback += OnClientConnect;
-                net.OnClientDisconnectCallback += OnClientDisconnect;
             });
             
             _isStartingHost = false; 
@@ -112,8 +112,16 @@ namespace _Project.Code.Runtime.CommonServices.Network
             Debug.Log($"Client connected: {clientId}, nickname: {nickname}");
         }
         
-        private void OnClientDisconnect(ulong clientId) => 
+        private void OnClientDisconnect(ulong clientId)
+        {
+            if (_clientsRegistry.GetById(clientId) == null)
+            {
+                Debug.LogWarning($"[HostNetworkService] Client {clientId} disconnected before profile was registered, ignoring.");
+                return;
+            }
+            
             OnClientDisconnected?.Invoke(clientId);
+        }
 
         public void Dispose()
         {

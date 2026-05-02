@@ -11,5 +11,6 @@ namespace _Project.Code.Runtime.Infrustructure.AssetsManagement
         T Load<T>(string path) where T : Object;
         T Instantiate<T>(string path, Vector3 at) where T : Object;
         T Instantiate<T>(string path, Vector3 at, Quaternion atRot) where T : Object;
+        T[] LoadAll<T>(string path) where T : Object;
     }
 }

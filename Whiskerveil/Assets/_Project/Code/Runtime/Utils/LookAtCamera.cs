@@ -6,10 +6,10 @@ namespace _Project.Code.Runtime.Utils
 {
     public class LookAtCamera : MonoBehaviour
     {
-        public Camera _camera;
+        public UnityEngine.Camera _camera;
         
         private void Start() => 
-            _camera = Camera.main;
+            _camera = UnityEngine.Camera.main;
 
         private void LateUpdate()
         {

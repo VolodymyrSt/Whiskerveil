@@ -13,23 +13,23 @@ MonoBehaviour:
   m_Name: LevelSlotsHolder
   m_EditorClassIdentifier: Assembly-CSharp::_Project.Code.Runtime.Configs.Slots.SlotsDataHolderSO
   Slots:
-  - Name: Point_3_Hider
-    Id: 9639cab0-fd71-423d-b656-737febac4e86
-    ForRole: 1
-    Position: {x: -10, y: 0, z: 0}
-    Rotation: {x: -0, y: -0, z: -0, w: 1}
   - Name: Point_1_Hider
     Id: 5bc6966e-5109-4d3b-9924-9d6b9e3f5072
     ForRole: 1
-    Position: {x: 5, y: 0, z: 0}
-    Rotation: {x: -0, y: -0, z: -0, w: 1}
+    Position: {x: 12.809999, y: -1, z: -3.71}
+    Rotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
   - Name: Point_2_Hider
     Id: 54dcae3c-1c0e-44dd-8d9c-8764afd9d8f1
     ForRole: 1
-    Position: {x: 0, y: 0, z: 0}
-    Rotation: {x: -0, y: -0, z: -0, w: 1}
+    Position: {x: 12.809999, y: -1, z: -4.21}
+    Rotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
+  - Name: Point_3_Hider
+    Id: 9639cab0-fd71-423d-b656-737febac4e86
+    ForRole: 1
+    Position: {x: 12.809999, y: -1, z: -3.21}
+    Rotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
   - Name: Point_Seeker
     Id: 84c11c4a-5fee-4760-9e52-23a06141608f
     ForRole: 2
-    Position: {x: 0, y: 0, z: -7}
-    Rotation: {x: -0, y: -0, z: -0, w: 1}
+    Position: {x: 14.615999, y: -1, z: -3.7267}
+    Rotation: {x: 0, y: -0.7071068, z: -0, w: 0.7071068}
