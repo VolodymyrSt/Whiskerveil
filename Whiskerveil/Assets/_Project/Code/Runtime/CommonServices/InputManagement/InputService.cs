@@ -1,5 +1,3 @@
-
-
 using UnityEngine;
 
 namespace _Project.Code.Runtime.CommonServices.InputManagement
@@ -25,5 +23,8 @@ namespace _Project.Code.Runtime.CommonServices.InputManagement
         
         public Vector2 GetCharacterLookVector() => 
             _inputAction.Player.Look.ReadValue<Vector2>();
+
+        public bool PlayerAttackPressed() => 
+            _inputAction.Player.Attack.IsPressed();
     }
 }

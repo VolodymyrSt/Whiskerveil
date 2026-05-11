@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using _Project.Code.Runtime.CommonServices.ClientRegistry;
 using _Project.Code.Runtime.CommonServices.GameState;
@@ -12,6 +13,8 @@ using _Project.Code.Runtime.Configs.Slots;
 using _Project.Code.Runtime.Gameplay.Camera.Factory;
 using _Project.Code.Runtime.Gameplay.Character;
 using _Project.Code.Runtime.Gameplay.Character.Factory;
+using _Project.Code.Runtime.Gameplay.Temp;
+using _Project.Code.Runtime.Gameplay.UI.Level;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,9 +24,8 @@ namespace _Project.Code.Runtime.Infrustructure.EntryPoints
 {
     public class LevelEntryPoint : NetworkBehaviour
     {
-        private readonly NetworkVariable<float> _remainingTime = new(writePerm: NetworkVariableWritePermission.Server);
-
-        [SerializeField] private CountdownTimerView _countdownTimerView;
+        [SerializeField] private LevelUIMediator _levelUIMediator;
+        [SerializeField] private Cage _cage;
         
         private IRolePicker _rolePicker;
         private ISceneLoader _sceneLoader;
@@ -37,6 +39,8 @@ namespace _Project.Code.Runtime.Infrustructure.EntryPoints
         private int _loadedClientsCount;
         private bool _isGameplayStarted = false;
         private CountdownTimer _countdownTimer;
+        
+        private ICharacter _seekerCharacter;
         
         [Inject]
         private void Construct(IRolePicker rolePicker, ISceneLoader sceneLoader
@@ -63,6 +67,7 @@ namespace _Project.Code.Runtime.Infrustructure.EntryPoints
             }
             
             _slotService.PrepareLevelSlots();
+            _countdownTimer = new CountdownTimer();
 
             NetworkManager.Singleton.SceneManager.OnSceneEvent += OnLevelLoaded;
         }
@@ -71,7 +76,8 @@ namespace _Project.Code.Runtime.Infrustructure.EntryPoints
         private void Update()
         {
             if (!IsServer || !_isGameplayStarted) return;
-            
+
+            Debug.Log("_gameStateService.IsAllHidersDead()" + _gameStateService.IsAllHidersDead());
             _countdownTimer.Tick();
         }
 
@@ -84,47 +90,60 @@ namespace _Project.Code.Runtime.Infrustructure.EntryPoints
             if (IsAllClientLoaded())
             {
                 var hidingTime = _staticDataService.GameConfig.HidingTime;
-                _countdownTimer = new CountdownTimer();
-                _countdownTimer.SetUp(hidingTime);
+                
+                _countdownTimer.SetUp(5f);
                 _countdownTimer.OnElapsed += OnSeekerStartFinding;
-                _countdownTimer.OnSecondElapsed += OnTimerSecondTicked;
+
+                _levelUIMediator.BindTimer(_countdownTimer);
+                _levelUIMediator.UpdateTimerIconBaseOnRoleClientRpc(GameRole.Hider);
+                _levelUIMediator.ShowMassageClientRpc(GameRole.Hider);
+                
                 _countdownTimer.Start();
                 
-                BeginGameplayClientRpc();
                 _isGameplayStarted = true;
+                
             }
         }
         
         private void OnSeekerStartFinding()
         {
+            _cage.OpenClientRpc();
+            _seekerCharacter.AllowJump(true);
+            _countdownTimer.Stop();
             _countdownTimer.OnElapsed -= OnSeekerStartFinding;
-            _countdownTimer.OnSecondElapsed -= OnTimerSecondTicked;
             
             var seekingTime = _staticDataService.GameConfig.SeekingTime;
             _countdownTimer.SetUp(seekingTime);
-            _countdownTimer.OnElapsed += OnHidersLive;
-            _countdownTimer.OnSecondElapsed += OnTimerSecondTicked;
+            _countdownTimer.OnElapsed += OnGameEndedDueToTimerStop;
             _countdownTimer.Start();
+            _levelUIMediator.UpdateTimerIconBaseOnRoleClientRpc(GameRole.Seeker);
+            _levelUIMediator.ShowMassageClientRpc(GameRole.Seeker);
         }
 
-        private void OnHidersLive()
+        private void OnGameEndedDueToTimerStop()
         {
-            Debug.Log("Win");
-        }
+            _countdownTimer.Stop();
+            _countdownTimer.OnElapsed -= OnGameEndedDueToTimerStop;
+            _levelUIMediator.UnBindTimer();
 
-        private void OnTimerSecondTicked(int seconds) => 
-            UpdateTimerClientRpc(seconds);
+            RatWinsClientRpc();
+            StartCoroutine(LoadLobby());
+        }
 
         [ClientRpc]
-        private void BeginGameplayClientRpc(ClientRpcParams rpcParams = default)
-        {
+        private void RatWinsClientRpc() => 
+            _windowService.Open(WindowId.CatVictory);
 
+        [ServerRpc]
+        private void LoadLobbyServerRpc() => 
+            _sceneLoader.LoadSync("Lobby");
+        
+        private IEnumerator LoadLobby()
+        {
+            yield return new WaitForSeconds(2f);
+            LoadLobbyServerRpc();
         }
         
-        [ClientRpc]
-        private void UpdateTimerClientRpc(int seconds) => 
-            _countdownTimerView.UpdateTimerText(remaining: seconds);
-
         private bool IsAllClientLoaded() => 
             _loadedClientsCount >= _clientsRegistry.Profiles.Count;
         
@@ -141,9 +160,14 @@ namespace _Project.Code.Runtime.Infrustructure.EntryPoints
             var availableSlot = _slotService.GetFreeLevelSlotFor(profile.Role);
             availableSlot.IsTaken = true;
             ICharacter character = _characterFactory.CreateCharacterByProfile(profile, availableSlot.Position, availableSlot.Rotation);
-            
+
             if (profile.Role == GameRole.Seeker)
+            {
+                _seekerCharacter = character;
                 character.AllowJump(allow: false);
+            }
+            
+            _gameStateService.AddClientGameplayState(profile);
         }
 
         private void OnDisconnectedFromHost(ulong clientId)

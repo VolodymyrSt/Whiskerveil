@@ -19,7 +19,15 @@ MonoBehaviour:
   WalkResponse: 20
   SprintResponse: 30
   JumpForce: 0.55
-  CoyoteTime: 0.12
+  GroundCheckDistance: 0.1
+  GroundMask:
+    serializedVersion: 2
+    m_Bits: 1
+  AttackRadius: 0.4
+  AttackMask:
+    serializedVersion: 2
+    m_Bits: 1
+  AttackCooldown: 2
   StandHeight: 0.55
   ColliderRadius: 0.1
   YOffset: 0.28

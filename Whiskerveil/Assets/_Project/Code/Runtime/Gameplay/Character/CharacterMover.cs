@@ -1,5 +1,6 @@
 using _Project.Code.Runtime.Configs.Character;
 using _Project.Code.Runtime.Utils;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace _Project.Code.Runtime.Gameplay.Character
@@ -18,7 +19,7 @@ namespace _Project.Code.Runtime.Gameplay.Character
         private readonly float _sprintResponse;
         
         private readonly float _standCameraTargetHeight;
-        private readonly float _coyoteTime;
+        private readonly float _jumpCooldown;
         
         private readonly float _standHeight;
         private readonly float _colliderRadius;
@@ -27,9 +28,10 @@ namespace _Project.Code.Runtime.Gameplay.Character
         private readonly float _airAcceleration;
         private readonly float _airSpeed;
         
-        private Vector3 _acceleration;
+        private readonly float _groundCheckDistance;
+        private readonly LayerMask _groundMask;
+        
         private Vector3 _currentVelocity;
-        private Vector3 _previousVelocity;
         private float _verticalVelocity;
         
         private Vector3 _requestedMoveDirection;
@@ -37,9 +39,9 @@ namespace _Project.Code.Runtime.Gameplay.Character
         private bool _requestedJumpInput;
         private bool _requestedSprintInput;
         
-        private bool _jumpConsumed;
-        private float _coyoteTimer;
         private bool _isJumpAllowed = true;
+        private bool _isMoveAllowed = true;
+        private bool _isGrounded;
         
         public CharacterMover(CharacterController controller, CharacterConfigSO config, Transform head)
         {
@@ -55,9 +57,10 @@ namespace _Project.Code.Runtime.Gameplay.Character
             _sprintResponse           = config.SprintResponse;
             _airAcceleration          = config.AirAcceleration;
             _airSpeed                 = config.AirSpeed;
-            _coyoteTime               = config.CoyoteTime;
             _colliderRadius           = config.ColliderRadius;
             _colliderYOffset          = config.YOffset;
+            _groundCheckDistance      = config.GroundCheckDistance;
+            _groundMask               = config.GroundMask;
         }
 
         public void Init()
@@ -68,6 +71,9 @@ namespace _Project.Code.Runtime.Gameplay.Character
         
         public void ToggleJump(bool allow) => 
             _isJumpAllowed = allow;
+        
+        public void ToggleMove(bool allow) => 
+            _isMoveAllowed = allow;
 
         public void ProcessInput(Vector3 moveInput, Quaternion rotation, bool jumpInput, bool sprintInput)
         {
@@ -95,28 +101,20 @@ namespace _Project.Code.Runtime.Gameplay.Character
 
         public void UpdateVelocity(float deltaTime)
         {
-            _acceleration = Vector3.zero;
-            
-            if (IsOnGround())
-                _coyoteTimer = _coyoteTime;
-            else
-                _coyoteTimer -= deltaTime;
+            _isGrounded = IsOnGround(); 
             
             ApplyGravity(deltaTime);
-            PerformMove(deltaTime);
+    
+            if (_isMoveAllowed)
+                PerformMove(deltaTime);
 
             if (CanJump())
-            {
                 PerformJump();
-                _coyoteTimer = 0f;
-            }
         }
-        
-        public Vector3 GetAcceleration() => _acceleration;
         
         private void ApplyGravity(float deltaTime)
         {
-            if (IsOnGround() && _verticalVelocity < 0f)
+            if (_isGrounded && _verticalVelocity < 0f)
                 _verticalVelocity = -1f;
             else
                 _verticalVelocity += Constants.Gravity * deltaTime;
@@ -126,30 +124,23 @@ namespace _Project.Code.Runtime.Gameplay.Character
         
         private void PerformMove(float deltaTime)
         {
-            if (IsOnGround())
+            if (_isGrounded)
             {
                 var speed    = _requestedSprintInput ? _sprintSpeed : _walkSpeed;
                 var response = _requestedSprintInput ? _sprintResponse : _walkResponse;
 
-                var targetVelocity = _requestedMoveDirection * speed;
-    
                 _currentVelocity = Vector3.Lerp(
-                    _currentVelocity, 
-                    targetVelocity, 
+                    _currentVelocity,
+                    _requestedMoveDirection * speed,
                     1f - Mathf.Exp(-response * deltaTime));
             }
             else
             {
-                var targetVelocity = _requestedMoveDirection * _airSpeed;
-                
                 _currentVelocity = Vector3.Lerp(
                     _currentVelocity,
-                    targetVelocity,
+                    _requestedMoveDirection * _airSpeed,
                     1f - Mathf.Exp(-_airAcceleration * deltaTime));
             }
-
-            _acceleration = (_currentVelocity - _previousVelocity) / deltaTime;
-            _previousVelocity = _currentVelocity;
 
             _controller.Move(_currentVelocity * deltaTime);
         }
@@ -158,6 +149,7 @@ namespace _Project.Code.Runtime.Gameplay.Character
         {
             _verticalVelocity = Mathf.Sqrt(_jumpForce * -2f * Constants.Gravity);
             _requestedJumpInput = false;
+            _isGrounded         = false; 
         }
 
         private void SetCapsuleDimensionsByStance(float height, float radius, float yOffset)
@@ -167,8 +159,20 @@ namespace _Project.Code.Runtime.Gameplay.Character
             _controller.center = new Vector3(_controller.center.x, yOffset, _controller.center.z);
         }
 
-        private bool CanJump() => _isJumpAllowed && _requestedJumpInput && _coyoteTimer > 0f;
+        private bool CanJump() => _isJumpAllowed && _requestedJumpInput && _isGrounded;
         
-        private bool IsOnGround() => _controller.isGrounded;
+        private bool IsOnGround()
+        {
+            var origin = _controller.transform.position + Vector3.up * _controller.radius;
+    
+            return Physics.SphereCast(
+                origin,
+                0.02f, 
+                Vector3.down,
+                out _,
+                _groundCheckDistance + _controller.radius,
+                _groundMask,
+                QueryTriggerInteraction.Ignore);
+        }
     }
 }

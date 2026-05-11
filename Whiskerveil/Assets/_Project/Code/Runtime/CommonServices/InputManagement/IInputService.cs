@@ -12,5 +12,6 @@ namespace _Project.Code.Runtime.CommonServices.InputManagement
         bool PlayerSprintPressed();
         Vector2 GetCharacterMoveVector();
         Vector2 GetCharacterLookVector();
+        bool PlayerAttackPressed();
     }
 }

@@ -17,5 +17,8 @@ namespace _Project.Code.Runtime.CommonServices.GameState
         void AddClientLobbyState(ClientProfile profile, IPreview character);
         event Action<int> OnLobbyStateChanged;
         ClientLobbyState GetClientLobbyStateById(ulong clientId);
+        bool IsAllHidersDead();
+        void SetClientGameplayStateToDead(ulong clientId);
+        void AddClientGameplayState(ClientProfile profile);
     }
 }

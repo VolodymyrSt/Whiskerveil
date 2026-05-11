@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using _Project.Code.Runtime.CommonServices.ClientRegistry;
+using _Project.Code.Runtime.CommonServices.RolePicker;
 using _Project.Code.Runtime.Gameplay.Character.Preview;
 using _Project.Code.Runtime.Utils;
 using Unity.Netcode;
@@ -16,9 +17,11 @@ namespace _Project.Code.Runtime.CommonServices.GameState
         public event Action<int> OnLobbyStateChanged;
         
         private readonly List<ClientLobbyState> _clientLobbyStates = new();
+        private readonly List<ClientGameplayState> _clientGameplayStates = new();
         private SceneState _currentSceneState = SceneState.None;
         
         public List<ClientLobbyState> LobbyStates => _clientLobbyStates;
+        public List<ClientGameplayState> GameplayStates => _clientGameplayStates;
         public SceneState CurrentSceneState => _currentSceneState;
         
         public void RemoveClientLobbyState(ulong clientId)
@@ -40,12 +43,41 @@ namespace _Project.Code.Runtime.CommonServices.GameState
             
             OnLobbyStateChanged?.Invoke(_clientLobbyStates.Count);
         }
+
+        public bool IsAllHidersDead()
+        {
+            var allHiders = _clientGameplayStates.FindAll(x => x != null && x.Role == GameRole.Hider);
+
+            foreach (var hider in allHiders)
+                if (!hider.IsDead) return false;
+            
+            return true;
+        }
+        
+        public void SetClientGameplayStateToDead(ulong clientId)
+        {
+            var client = _clientGameplayStates.Find(x => x.ClientId == clientId);
+            
+            if (client == null)
+                throw new NullReferenceException($"Client {clientId} does not exist in Gameplay States");
+
+            client.IsDead = true;
+        }
+
+        public void AddClientGameplayState(ClientProfile profile)
+        {
+            if (!Net.IsServer) return;
+            
+            _clientGameplayStates.Add(new ClientGameplayState() 
+                { ClientId = profile.Id, IsDead = false, Role = profile.Role});
+        }
         
         public void PrepairForClientConnection()
         {
             if (!Net.IsServer) return;
             
             _clientLobbyStates.Clear();
+            _clientGameplayStates.Clear();
             
             OnLobbyStateChanged?.Invoke(_clientLobbyStates.Count);
         }

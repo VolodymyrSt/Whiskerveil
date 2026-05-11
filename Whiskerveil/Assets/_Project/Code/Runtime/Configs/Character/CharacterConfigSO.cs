@@ -20,7 +20,13 @@ namespace _Project.Code.Runtime.Configs.Character
         
         [Header("Jump")]
         public float JumpForce;
-        public float CoyoteTime = 0.12f;
+        public float GroundCheckDistance = 0.1f;
+        public LayerMask GroundMask;
+        
+        [Header("Attack")]
+        public float AttackRadius = 2f;
+        public LayerMask AttackMask;
+        public float AttackCooldown = 2f;
         
         [Header("Collider")]
         public float StandHeight = 2f;

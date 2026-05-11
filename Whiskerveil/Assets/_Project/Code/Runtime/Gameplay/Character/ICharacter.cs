@@ -15,5 +15,6 @@ namespace _Project.Code.Runtime.Gameplay.Character
         Transform Head { get; }
         Transform CameraHolder { get; }
         void AllowJump(bool allow);
+        void AllowMove(bool allow);
     }
 }

@@ -64,7 +64,7 @@ namespace _Project.Code.Runtime.CommonServices.RolePicker
         }
     }
 
-    public enum GameRole {
+    public enum GameRole : byte {
         None, Hider, Seeker
     }
 }

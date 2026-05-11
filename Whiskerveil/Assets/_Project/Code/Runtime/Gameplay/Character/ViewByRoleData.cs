@@ -9,5 +9,6 @@ namespace _Project.Code.Runtime.Gameplay.Character
     {
         public GameRole Role;
         public GameObject View;
+        public Animator Animator;
     }
 }
