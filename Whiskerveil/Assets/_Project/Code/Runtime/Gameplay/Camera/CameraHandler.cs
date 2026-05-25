@@ -22,6 +22,8 @@ namespace _Project.Code.Runtime.Gameplay.Camera
         private bool _isInitialized = false;
         private bool _isLookBlocked = false;
         private bool _withModifiers = true;
+        private Transform _spectateTarget;
+        private bool _isSpectating;
 
         public void Init(ICharacter character, IInputService inputService, IStaticDataService staticDataService)
         {
@@ -61,7 +63,14 @@ namespace _Project.Code.Runtime.Gameplay.Camera
             UpdateLook();
             UpdateModifier();
         }
-
+        
+        public void SpectateTarget(Transform target)
+        {
+            _spectateTarget = target;
+            _isSpectating = true;
+            BlockCharacterLook();
+        }
+        
         private void UpdateModifier()
         {
             if (!_withModifiers) return;
@@ -77,7 +86,10 @@ namespace _Project.Code.Runtime.Gameplay.Camera
                 _cameraLookModule.UpdateLook(Vector3.zero);
         }
 
-       private void UpdatePosition() =>
-            _camera.transform.position = _target.position;
+        private void UpdatePosition()
+        {
+            var targetPos = _isSpectating ? _spectateTarget.position : _target.position;
+            _camera.transform.position = targetPos;
+        }
     }
 }

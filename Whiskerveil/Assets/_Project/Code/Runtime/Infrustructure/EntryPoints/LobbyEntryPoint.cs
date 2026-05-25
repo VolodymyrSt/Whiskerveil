@@ -22,6 +22,7 @@ namespace _Project.Code.Runtime.Infrustructure.EntryPoints
         private ICharacterPreviewFactory _characterPreviewFactory;
         private IGameStateService _gameStateService;
         private IClientsRegistry _clientsRegistry;
+        private LoadingCurtain _loadingCurtain;
         private IWindowService _windowService;
         private ISceneLoader _sceneLoader;
         private IRolePicker _rolePicker;
@@ -30,13 +31,15 @@ namespace _Project.Code.Runtime.Infrustructure.EntryPoints
         [Inject]
         public void Construct(IHostNetworkService hostNetworkService, ISlotService slotService
             , ICharacterPreviewFactory characterFactory, IClientsRegistry clientsRegistry, IGameStateService gameStateService
-            ,ISceneLoader sceneLoader, IWindowService windowService, IRolePicker rolePicker, IInputService inputService)
+            ,ISceneLoader sceneLoader, IWindowService windowService, IRolePicker rolePicker, 
+            IInputService inputService, LoadingCurtain loadingCurtain)
         {
             _hostNetworkService = hostNetworkService;
             _slotService = slotService;
             _characterPreviewFactory = characterFactory;
             _clientsRegistry = clientsRegistry;
             _gameStateService = gameStateService;
+            _loadingCurtain = loadingCurtain;
             _windowService = windowService;
             _sceneLoader = sceneLoader;
             _rolePicker = rolePicker;
@@ -132,6 +135,7 @@ namespace _Project.Code.Runtime.Infrustructure.EntryPoints
         
         private void OnAllClientsReady()
         {
+            ShowLoadingCurtainClientRpc();
             _sceneLoader.LoadSync(SceneList.Level, () => 
                 _gameStateService.SetSceneState(SceneState.InLevel));
         }
@@ -141,6 +145,10 @@ namespace _Project.Code.Runtime.Infrustructure.EntryPoints
             if (clientId == NetworkManager.Singleton.LocalClientId)
                 _windowService.Open(WindowId.HostDisconnect);
         }
+
+        [ClientRpc]
+        private void ShowLoadingCurtainClientRpc() => 
+            _loadingCurtain.Show();
 
         public override void OnNetworkDespawn()
         {

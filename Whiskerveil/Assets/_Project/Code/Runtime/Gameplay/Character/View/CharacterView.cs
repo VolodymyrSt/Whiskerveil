@@ -23,6 +23,9 @@ namespace _Project.Code.Runtime.Gameplay.Character.View
 
         public void UpdateName(string characterName) => 
             _nickname.text = characterName;
+        
+        public void SetVisible(bool visible) => 
+            gameObject.SetActive(visible);
 
         public void UpdateAnimation(bool isWalking, bool sprinting, bool jump)
         {

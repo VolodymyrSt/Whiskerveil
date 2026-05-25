@@ -7,8 +7,14 @@ using _Project.Code.Runtime.CommonServices.RolePicker;
 using _Project.Code.Runtime.CommonServices.SceneLoader;
 using _Project.Code.Runtime.CommonServices.SlotsManagement;
 using _Project.Code.Runtime.Infrustructure;
+using _Project.Code.Runtime.Utils;
 using Cysharp.Threading.Tasks;
 using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
+using Unity.Networking.Transport.Relay;
+using Unity.Services.Core;
+using Unity.Services.Relay;
+using Unity.Services.Relay.Models;
 using UnityEngine;
 
 namespace _Project.Code.Runtime.CommonServices.Network
@@ -25,13 +31,17 @@ namespace _Project.Code.Runtime.CommonServices.Network
         private readonly ISlotService _slotService;
         private readonly IClientsRegistry _clientsRegistry;
         private readonly IGameStateService _gameStateService;
+        private readonly UnityTransport _transport;
         private readonly IRolePicker _rolePicker;
+
+        public string JoinCode => _joinCode;
         
         private bool _isStartingHost;
+        private string _joinCode;
         
         public HostNetworkService(ISceneLoader sceneLoader, LoadingCurtain loadingCurtain
             , ISlotService slotService, IClientsRegistry clientsRegistry, IRolePicker rolePicker
-            , IGameStateService gameStateService)
+            , IGameStateService gameStateService, UnityTransport transport)
         {
             _sceneLoader = sceneLoader;
             _loadingCurtain = loadingCurtain;
@@ -39,11 +49,12 @@ namespace _Project.Code.Runtime.CommonServices.Network
             _clientsRegistry = clientsRegistry;
             _rolePicker = rolePicker;
             _gameStateService = gameStateService;
+            _transport = transport;
         }
         
         public async UniTask StartHost(string nickname)
         {
-            // _loadingCurtain.Procced();
+            _loadingCurtain.Procced();
             
             if (_isStartingHost)
                 return;
@@ -59,6 +70,15 @@ namespace _Project.Code.Runtime.CommonServices.Network
             }
             
             net.ConnectionApprovalCallback = ApprovalCheck;
+            
+            Allocation relayAllocation = await RelayService.Instance.CreateAllocationAsync(Constants.MaxPlayerCount);
+            _joinCode = await RelayService.Instance.GetJoinCodeAsync(relayAllocation.AllocationId);
+            
+            Debug.Log("JoinCode: " + _joinCode);
+
+            RelayServerData relayData = relayAllocation.ToRelayServerData("dtls");
+            _transport.SetRelayServerData(relayData);
+            
             net.StartHost();
             
             _rolePicker.RestoreAll();

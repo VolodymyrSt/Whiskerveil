@@ -4,6 +4,7 @@ using _Project.Code.Runtime.CommonServices.Network;
 using _Project.Code.Runtime.CommonServices.RolePicker;
 using _Project.Code.Runtime.CommonServices.SwapRole;
 using _Project.Code.Runtime.CommonServices.WindowManagement;
+using TMPro;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
@@ -25,6 +26,7 @@ namespace _Project.Code.Runtime.Gameplay.UI.Lobby
         
         [Header("Other")]
         [SerializeField] private Image _readySigh;
+        [SerializeField] private TextMeshProUGUI _joinGameText;
         
         private IClientsRegistry _clientsRegistry;
         private ISwapRoleService _swapRoleService;
@@ -46,11 +48,17 @@ namespace _Project.Code.Runtime.Gameplay.UI.Lobby
         
         public override void OnNetworkSpawn()
         {
+            if (!IsServer)
+                _joinGameText.gameObject.SetActive(false);
+            
             if (IsServer)
             {
                 _gameStateService.OnLobbyStateChanged += OnLobbyStateChanged;
                 _hostNetworkService.OnClientDisconnected += OnClientDisconnected;
                 _hostNetworkService.OnClientConnected += OnClientConnected;
+                
+                _joinGameText.gameObject.SetActive(true);
+                _joinGameText.text = $"Code: {_hostNetworkService.JoinCode}";
             }
 
             _readySigh.gameObject.SetActive(false);

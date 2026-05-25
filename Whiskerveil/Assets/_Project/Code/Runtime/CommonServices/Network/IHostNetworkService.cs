@@ -8,5 +8,6 @@ namespace _Project.Code.Runtime.CommonServices.Network
         UniTask StartHost(string nickname);
         event Action<ulong> OnClientDisconnected;
         event Action<ulong> OnClientConnected;
+        string JoinCode { get; }
     }
 }

@@ -80,9 +80,7 @@ namespace _Project.Code.Runtime.Gameplay.Character
             _requestedRotation      = rotation;
             _requestedMoveDirection = rotation * new Vector3(moveInput.x, 0f, moveInput.y).normalized;
             _requestedSprintInput   = sprintInput;
-            
-            if (jumpInput) 
-                _requestedJumpInput = true;
+            _requestedJumpInput = jumpInput;
         }
         
         public void UpdateRotation(float deltaTime)

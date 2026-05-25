@@ -13,6 +13,7 @@ using _Project.Code.Runtime.Gameplay.Character.Factory;
 using _Project.Code.Runtime.Infrustructure.AssetsManagement;
 using _Project.Code.Runtime.Infrustructure.EntryPoints;
 using _Project.Code.Runtime.Utils;
+using Unity.Netcode.Transports.UTP;
 using UnityEngine;
 using Zenject;
 
@@ -21,6 +22,7 @@ namespace _Project.Code.Runtime.Infrustructure.Installers
     public class BootstrapInstaller : MonoInstaller, ICoroutineRunner
     {
         [SerializeField] private LoadingCurtain _loadingCurtain;
+        [SerializeField] private UnityTransport _transport;
         
         public override void InstallBindings()
         {
@@ -41,6 +43,8 @@ namespace _Project.Code.Runtime.Infrustructure.Installers
             Container.BindInterfacesTo<GameStateService>().AsSingle();
             Container.BindInterfacesTo<StaticDataService>().AsSingle();
             Container.BindInterfacesTo<InputService>().AsSingle();
+            
+            Container.Bind<UnityTransport>().FromInstance(_transport).AsSingle();
         }
         
         private void BindCameraFactory() => 

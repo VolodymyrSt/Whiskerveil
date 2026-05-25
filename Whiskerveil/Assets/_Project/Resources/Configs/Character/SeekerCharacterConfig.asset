@@ -26,7 +26,7 @@ MonoBehaviour:
   AttackRadius: 0.4
   AttackMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 64
   AttackCooldown: 2
   StandHeight: 0.55
   ColliderRadius: 0.1

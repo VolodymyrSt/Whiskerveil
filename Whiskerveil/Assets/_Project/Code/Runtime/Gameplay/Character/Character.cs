@@ -41,12 +41,15 @@ namespace _Project.Code.Runtime.Gameplay.Character
         public GameRole Role => _role.Value;
         public Transform Head => _head;
         public Transform CameraHolder => _cameraHolder;
+        
+        public event Action<ulong> OnSeekerKilled;
 
         private IStaticDataService _staticDataService;
         private IGameStateService _gameStateService;
         private ICameraFactory _cameraFactory;
         private IInputService _input;
         private IFPVCameraHandler _fpvCamera;
+        private CharacterMover _localMover; 
         private CharacterMover _mover;
         private AttackModule _attackModule;
         
@@ -99,20 +102,31 @@ namespace _Project.Code.Runtime.Gameplay.Character
                 _fpvCamera = _cameraFactory.CreateCamera(_cameraHolder);
                 _fpvCamera.Init(this, _input, _staticDataService);
                 _cameraInitialized = true;
+                
+                _role.OnValueChanged += InitLocalMoverOnRoleChange;
+                if (_role.Value != GameRole.None)
+                    InitLocalMover(_role.Value);
             }
         }
         
         private void Update()
         {
             if (!IsOwner) return;
-            
-            MoveServerRpc(
-                _input.GetCharacterMoveVector(),
-                _input.PlayerJumpPressed(),
-                _input.PlayerSprintPressed(),
-                _fpvCamera.Rotation,
-                Time.deltaTime
-            );
+
+            var moveInput   = _input.GetCharacterMoveVector();
+            var jump        = _input.PlayerJumpPressed();
+            var sprint      = _input.PlayerSprintPressed();
+            var rotation    = _fpvCamera.Rotation;
+            var dt          = Time.deltaTime;
+
+            if (_localMover != null)
+            {
+                _localMover.ProcessInput(moveInput, rotation, jump, sprint);
+                _localMover.UpdateVelocity(dt);
+                _localMover.UpdateRotation(dt);
+            }
+
+            MoveServerRpc(moveInput, jump, sprint, rotation, dt);
 
             if (_input.PlayerAttackPressed())
                 AttackServerRpc();
@@ -125,11 +139,27 @@ namespace _Project.Code.Runtime.Gameplay.Character
             _fpvCamera.LateTick();
         }
         
-
         public void SetName(string characterName)
         {
             if (!IsServer) return;
             _name.Value = characterName;
+        }
+        
+        public void AssignRole(GameRole role)
+        {
+            if (!IsServer) return;
+            _role.Value = role;
+        }
+        
+        public void Teleport(Vector3 position)
+        {
+            if (_characterController != null)
+                _characterController.enabled = false;
+
+            transform.position = position;
+
+            if (_characterController != null)
+                _characterController.enabled = true;
         }
 
         public void AllowJump(bool allow) =>
@@ -137,6 +167,18 @@ namespace _Project.Code.Runtime.Gameplay.Character
         
         public void AllowMove(bool allow) =>
             _mover.ToggleMove(allow);
+        
+        public void AllowAttack(bool allow) =>
+            _attackModule.Toggle(allow);
+
+        public void AllowLook(bool allow)
+        {
+            if (!IsOwner || !_cameraInitialized) return;
+            if (allow)
+                _fpvCamera.ReleaseCharacterLook();
+            else
+                _fpvCamera.BlockCharacterLook();
+        }
         
         [ServerRpc]
         private void MoveServerRpc(Vector2 moveInput, bool jumpInput, bool sprintInput, Quaternion cameraRotation, float deltaTime)
@@ -160,12 +202,9 @@ namespace _Project.Code.Runtime.Gameplay.Character
                 return;
 
             if (_attackModule.TryAttack(out var hiderId))
-            {
-                Debug.Log("Id");
-                _gameStateService.SetClientGameplayStateToDead(hiderId);
-            }
+                OnSeekerKilled?.Invoke(hiderId);
         }
-
+        
         [ClientRpc]
         private void UpdateAnimationClientRpc(bool isWalking, bool jump, bool sprinting)
         {
@@ -179,17 +218,24 @@ namespace _Project.Code.Runtime.Gameplay.Character
             _view.UpdateNicknamePositionBaseOnView(_role.Value);
         }
 
-        public void AssignRole(GameRole role)
-        {
-            if (!IsServer) return;
-            _role.Value = role;
-        }
         
         private void SwitchViewBaseOnRole(GameRole oldRole, GameRole newRole) => 
             _view.SwitchViewBaseOnRole(newRole);
         
         private void InitMoverBaseOnRole(GameRole oldRole, GameRole newRole) => InitMover(newRole);
         private void InitAttackModuleBaseOnRole(GameRole oldRole, GameRole newRole) => InitAttackModule(newRole);
+        
+        private void InitLocalMoverOnRoleChange(GameRole old, GameRole newRole)
+            => InitLocalMover(newRole);
+
+        private void InitLocalMover(GameRole role)
+        {
+            _localMover = new CharacterMover(
+                _characterController,
+                _staticDataService.GetCharacterConfigForRole(role),
+                _head);
+            _localMover.Init();
+        }
 
         private void InitMover(GameRole role)
         {

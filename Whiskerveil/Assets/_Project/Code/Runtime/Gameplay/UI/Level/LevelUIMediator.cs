@@ -12,8 +12,6 @@ namespace _Project.Code.Runtime.Gameplay.UI.Level
 {
     public class LevelUIMediator : NetworkBehaviour
     {
-        [SerializeField] private Button _exitButton;
-        
         [Header("Timer")]
         [SerializeField] private CountdownTimerView _countdownTimerView;
         
@@ -32,16 +30,6 @@ namespace _Project.Code.Runtime.Gameplay.UI.Level
         {
             _massageRoot.localScale = Vector3.zero;
             _massageRoot.gameObject.SetActive(false);
-            
-            if (!IsServer)
-            {
-                _exitButton.gameObject.SetActive(false);
-                return;
-            }
-            
-            _exitButton.onClick.AddListener(() => {
-                _sceneLoader.LoadSync("Lobby");
-            });
         }
 
         public void BindTimer(CountdownTimer timer)
@@ -63,10 +51,10 @@ namespace _Project.Code.Runtime.Gameplay.UI.Level
             UpdateTimerClientRpc(seconds);
 
         [ClientRpc]
-        public void ShowMassageClientRpc(GameRole role)
+        public void ShowMassageClientRpc(GameRole role, float timeToHide = 30)
         {
             _massageRoot.gameObject.SetActive(true);
-            var massage = role ==  GameRole.Hider ? "YOU HAVE 30 SECONDS TO HIDE" : "THE CAR IS FREE";
+            var massage = role ==  GameRole.Hider ? $"YOU HAVE {timeToHide} SECONDS TO HIDE" : "THE CAR IS FREE";
             _massageText.text = massage;
             _massageRoot.DOScale(1f, 0.5f)
                 .SetEase(Ease.Linear)
@@ -94,8 +82,5 @@ namespace _Project.Code.Runtime.Gameplay.UI.Level
                 })
                 .Play();
         }
-        
-        public override void OnNetworkDespawn() => 
-            _exitButton.onClick.RemoveAllListeners();
     }
 }

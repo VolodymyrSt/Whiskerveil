@@ -11,6 +11,7 @@ namespace _Project.Code.Runtime.Gameplay.Character.Modules
 
         private readonly float _cooldown;
 
+        private bool _isAllowed;
         private float _lastAttackTime;
 
         public AttackModule(
@@ -25,9 +26,13 @@ namespace _Project.Code.Runtime.Gameplay.Character.Modules
             _cooldown = cooldown;
         }
 
+        public void Toggle(bool allow) => 
+            _isAllowed = allow;
+
         public bool TryAttack(out ulong hiderId)
         {
             hiderId = default;
+            if (!_isAllowed) return false;
 
             if (!CanAttack())
                 return false;

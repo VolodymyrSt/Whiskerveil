@@ -4,6 +4,6 @@ namespace _Project.Code.Runtime.CommonServices.Network
 {
     public interface IClientNetworkService
     {
-        UniTask StartClient(string nickname);
+        UniTask StartClient(string nickname, string joinCode);
     }
 }

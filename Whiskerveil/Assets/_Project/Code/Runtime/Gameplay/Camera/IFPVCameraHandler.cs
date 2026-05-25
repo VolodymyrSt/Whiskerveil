@@ -13,5 +13,6 @@ namespace _Project.Code.Runtime.Gameplay.Camera
         void ReleaseCharacterLook();
         void LateTick();
         Quaternion Rotation { get; }
+        void SpectateTarget(Transform target);
     }
 }

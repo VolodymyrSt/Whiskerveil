@@ -12,6 +12,7 @@ namespace _Project.Code.Runtime.Gameplay.UI.Menu
         [SerializeField] private Button _hostButton;
         [SerializeField] private Button _clientButton;
         [SerializeField] private TMP_InputField _nicknameInputField;
+        [SerializeField] private TMP_InputField _roomCodeInputField;
         
         private IHostNetworkService _hostNetworkService;
         private IClientNetworkService _clientNetworkService;
@@ -29,7 +30,7 @@ namespace _Project.Code.Runtime.Gameplay.UI.Menu
                 _hostNetworkService.StartHost(_nicknameInputField.text).Forget());
             
             _clientButton.onClick.AddListener(() => 
-                _clientNetworkService.StartClient(_nicknameInputField.text).Forget());
+                _clientNetworkService.StartClient(_nicknameInputField.text, _roomCodeInputField.text).Forget());
         }
 
         private void OnDestroy()

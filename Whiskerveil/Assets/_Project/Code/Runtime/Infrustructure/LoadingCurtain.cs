@@ -19,6 +19,15 @@ namespace _Project.Code.Runtime.Infrustructure
             StartCoroutine(WaitAndFadeIn(_durationBeforeFadeIn));
         }
 
+        public void Show()
+        {
+            gameObject.SetActive(true);
+            _curtain.alpha = 1f;
+        }
+        
+        public void FadeIn() => 
+            StartCoroutine(WaitAndFadeIn(0));
+
         private IEnumerator WaitAndFadeIn(float waitTime)
         {
             yield return new WaitForSeconds(waitTime);
